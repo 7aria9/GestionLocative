@@ -4,6 +4,8 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:GestionLocative.Core.ViewModels;assembly=GestionLocative.Core"
+        xmlns:cal="clr-namespace:GestionLocative.Core.Calendar;assembly=GestionLocative.Core"
+        xmlns:app="clr-namespace:GestionLocative.App"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:CalendarViewModel}"
         Title="Gestion locative"
@@ -13,6 +15,10 @@
         FontFamily="Segoe UI">
 
     <!-- Raccourcis clavier : Page précédente / Page suivante -->
+    <Window.Resources>
+        <app:CouleurLocationConverter x:Key="CouleurLocation" />
+    </Window.Resources>
+
     <Window.InputBindings>
         <KeyBinding Key="PageUp" Command="{Binding MoisPrecedentCommand}" />
         <KeyBinding Key="PageDown" Command="{Binding MoisSuivantCommand}" />
@@ -124,19 +130,35 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
 
-                            <!-- Locations du jour (arrivées, séjours en cours, départs) -->
-                            <ItemsControl ItemsSource="{Binding Entrees}" Margin="0,4,0,0">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Margin="0,0,0,2" Padding="6,1" CornerRadius="4"
-                                                Background="{StaticResource AccentClair}">
-                                            <TextBlock Text="{Binding Libelle}" FontSize="11"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       Foreground="{StaticResource Accent}" />
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                            <!-- Locations du jour (arrivées, séjours en cours, départs), une couleur par location -->
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                          Margin="0,4,0,0" Focusable="False">
+                                <ItemsControl ItemsSource="{Binding Entrees}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="{x:Type cal:CalendarEntry}">
+                                            <Border Margin="0,0,0,3" Padding="6,2,4,3" CornerRadius="4"
+                                                    BorderThickness="3,0,0,0"
+                                                    Background="{Binding IndexCouleur, Converter={StaticResource CouleurLocation}, ConverterParameter=Fond}"
+                                                    BorderBrush="{Binding IndexCouleur, Converter={StaticResource CouleurLocation}, ConverterParameter=Lisere}"
+                                                    ToolTip="{Binding Infobulle}"
+                                                    ToolTipService.ShowDuration="60000">
+                                                <StackPanel TextElement.Foreground="{Binding IndexCouleur, Converter={StaticResource CouleurLocation}, ConverterParameter=Texte}">
+                                                    <TextBlock Text="{Binding Libelle}" FontSize="11" FontWeight="SemiBold"
+                                                               TextTrimming="CharacterEllipsis" />
+                                                    <ItemsControl ItemsSource="{Binding Details}" Focusable="False">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock Text="{Binding}" FontSize="10.5"
+                                                                           TextTrimming="CharacterEllipsis" />
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
                         </DockPanel>
                     </Border>
                     <DataTemplate.Triggers>

@@ -17,7 +17,7 @@ namespace GestionLocative.Core.Donnees;
 public sealed class BaseDeDonnees
 {
     /// <summary>Version du schéma créé par ce programme (stockée dans <c>PRAGMA user_version</c>).</summary>
-    public const int VersionSchema = 1;
+    public const int VersionSchema = 2;
 
     private const int AttenteVerrouSecondes = 10;
 
@@ -75,6 +75,14 @@ public sealed class BaseDeDonnees
             using var transaction = connexion.BeginTransaction();
             Executer(connexion, SchemaV1, transaction);
             Executer(connexion, "PRAGMA user_version = 1;", transaction);
+            transaction.Commit();
+        }
+
+        if (version < 2)
+        {
+            using var transaction = connexion.BeginTransaction();
+            Executer(connexion, SchemaV2, transaction);
+            Executer(connexion, "PRAGMA user_version = 2;", transaction);
             transaction.Commit();
         }
     }
@@ -135,5 +143,15 @@ public sealed class BaseDeDonnees
         CREATE INDEX ix_locations_dates ON locations (date_debut, date_fin);
         CREATE INDEX ix_locations_client ON locations (idclient);
         CREATE INDEX ix_clients_nom ON clients (nom, prenom);
+        """;
+
+    /// <summary>V2 : réglages communs à tous les postes (taux de TVA...), valeurs en texte.</summary>
+    private const string SchemaV2 = """
+        CREATE TABLE reglages (
+            cle     TEXT PRIMARY KEY,
+            valeur  TEXT NOT NULL
+        );
+
+        INSERT INTO reglages (cle, valeur) VALUES ('taux_tva', '10');
         """;
 }

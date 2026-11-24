@@ -16,7 +16,26 @@ public sealed class BaseDeDonneesTests : IDisposable
         using var connexion = _temp.Base.Ouvrir();
         using var commande = connexion.CreateCommand();
         commande.CommandText = "SELECT group_concat(name, ',') FROM (SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name);";
-        Assert.Equal("clients,locations", commande.ExecuteScalar());
+        Assert.Equal("clients,locations,reglages", commande.ExecuteScalar());
+    }
+
+    [Fact]
+    public void Une_base_en_version_1_est_mise_a_jour_sans_perdre_les_donnees()
+    {
+        new ClientRepository(_temp.Base).Ajouter(BaseTemporaire.NouveauClient());
+        using (var connexion = _temp.Base.Ouvrir())
+        {
+            using var commande = connexion.CreateCommand();
+            commande.CommandText = "DROP TABLE reglages; PRAGMA user_version = 1;";
+            commande.ExecuteNonQuery();
+        }
+
+        _temp.Base.Initialiser();
+
+        Assert.Single(new ClientRepository(_temp.Base).Lister());
+        Assert.Equal(10m, new ReglagesRepository(_temp.Base).ObtenirTauxTva());
+        using var verification = _temp.Base.Ouvrir();
+        Assert.Equal(2L, Lire(verification, "PRAGMA user_version;"));
     }
 
     [Fact]

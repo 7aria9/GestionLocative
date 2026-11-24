@@ -23,8 +23,12 @@ Calendrier du mois en cours, une vignette par jour, semaine commençant le lundi
 Les boutons en haut à droite (ou les touches Page préc. / Page suiv.) changent de mois.
 Les jours des mois voisins complètent la première et la dernière semaine, grisés ; le jour courant est mis en évidence.
 
-Chaque vignette affiche les locations du jour (`LocationsCalendarSource`) : « Arrivée NOM » le premier jour,
-le nom du client les jours intermédiaires et « Départ NOM » le dernier jour.
+Chaque vignette affiche les locations du jour (`LocationsCalendarSource`), chacune dans sa couleur :
+« Arrivée NOM Prénom » le premier jour, le nom du client les jours intermédiaires et « Départ NOM Prénom » le dernier jour.
+Le jour d'arrivée (et chaque lundi, en début de ligne) montre aussi le nombre total de personnes, l'email,
+le prix HT et le prix TTC. Le survol d'une location affiche tout le détail (dates, voyageurs, Airbnb, n° de réservation).
+
+Le prix HT est calculé à partir du tarif TTC avec le taux de TVA réglé dans **Paramètres** (10 % par défaut).
 
 ## Créer une location
 
@@ -53,6 +57,8 @@ Un seul fichier SQLite contient les clients et les locations.
 | Email | `email` | obligatoire, format d'email vérifié, enregistré en minuscules, unique |
 | Plaque d'immatriculation | `plaque_immatriculation` | facultative, enregistrée en majuscules |
 
+**Réglages communs** (`reglages`) : paires clé / valeur partagées par tous les postes, par ex. `taux_tva` (10 par défaut).
+
 **Locations** (`locations`)
 
 | Champ | Colonne | Règle |
@@ -68,7 +74,9 @@ Un seul fichier SQLite contient les clients et les locations.
 
 Un client qui a des locations ne peut pas être supprimé. Les dates sont enregistrées en heure locale
 au format `AAAA-MM-JJ HH:MM`. La version du schéma est notée dans `PRAGMA user_version`, ce qui permettra
-de faire évoluer la base sans perdre les données.
+de faire évoluer la base sans perdre les données (version 2 : ajout de la table `reglages`).
+Une fois la base mise à jour par une version récente du programme, les anciennes versions refusent de l'ouvrir :
+mettez à jour le programme sur tous les postes.
 
 ### Emplacement du fichier (réseau local)
 

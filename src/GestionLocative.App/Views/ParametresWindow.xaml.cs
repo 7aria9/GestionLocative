@@ -16,7 +16,7 @@ public partial class ParametresWindow : Window
     public ParametresWindow()
     {
         InitializeComponent();
-        _vm = new ParametresViewModel(App.Parametres);
+        _vm = new ParametresViewModel(App.Parametres, App.Base);
         _vm.Enregistre += Enregistre;
         _vm.PropertyChanged += CouleurMessage;
         DataContext = _vm;
