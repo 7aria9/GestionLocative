@@ -10,7 +10,14 @@
     <AssemblyName>GestionLocative</AssemblyName>
     <!-- Permet de compiler (sans exécuter) depuis Linux/macOS, par ex. en intégration continue. -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <!-- Icône de l'exe (explorateur, barre des tâches). Source : Assets/Icone.svg -->
+    <ApplicationIcon>Assets\Icone.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Icône des fenêtres (Window.Icon="/Assets/Icone.ico") -->
+    <Resource Include="Assets\Icone.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\GestionLocative.Core\GestionLocative.Core.csproj" />
