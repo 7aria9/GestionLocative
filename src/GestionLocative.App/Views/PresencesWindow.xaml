@@ -1,0 +1,151 @@
+<Window x:Class="GestionLocative.App.Views.PresencesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:recap="clr-namespace:GestionLocative.Core.Recapitulatif;assembly=GestionLocative.Core"
+        xmlns:donnees="clr-namespace:GestionLocative.Core.Donnees;assembly=GestionLocative.Core"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=recap:PresencesViewModel}"
+        Title="{Binding Titre}"
+        Width="1040" Height="640" MinWidth="860" MinHeight="420"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="{DynamicResource FondFenetre}"
+        Foreground="{DynamicResource Texte}"
+        FontFamily="Segoe UI"
+        FocusManager.FocusedElement="{Binding ElementName=ChampRecherche}">
+
+    <Window.Resources>
+        <Style x:Key="Cellule" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Margin" Value="10,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+        <Style x:Key="CelluleNombre" TargetType="TextBlock" BasedOn="{StaticResource Cellule}">
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+    </Window.Resources>
+
+    <DockPanel Margin="24">
+        <DockPanel DockPanel.Dock="Top" LastChildFill="True" Margin="0,0,0,4">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource BoutonNavigation}" Content="&#xE76B;"
+                        ToolTip="Année précédente" AutomationProperties.Name="Année précédente"
+                        Command="{Binding AnneePrecedenteCommand}" />
+                <TextBlock Text="{Binding Annee}" FontSize="18" FontWeight="SemiBold" Margin="14,0,10,0" VerticalAlignment="Center" />
+                <Button Style="{StaticResource BoutonNavigation}" Content="&#xE76C;"
+                        ToolTip="Année suivante" AutomationProperties.Name="Année suivante"
+                        Command="{Binding AnneeSuivanteCommand}" />
+            </StackPanel>
+            <StackPanel>
+                <TextBlock Text="{Binding Titre}" FontSize="22" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding Resume}" FontSize="13" Margin="0,4,0,0" Foreground="{DynamicResource TexteSecondaire}" />
+            </StackPanel>
+        </DockPanel>
+
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,18,0,0" LastChildFill="False">
+            <TextBlock DockPanel.Dock="Left" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap" MaxWidth="460"
+                       Foreground="{DynamicResource TexteSecondaire}"
+                       Text="Pour un PDF, choisissez l'imprimante « Microsoft Print to PDF ». Un séjour à cheval sur deux années compte dans l'année de son arrivée." />
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button Style="{StaticResource Bouton}" Content="Imprimer / PDF…"
+                        IsEnabled="{Binding ClientChoisi}"
+                        ToolTip="Imprimer la liste des présences, ou l'enregistrer en PDF"
+                        Click="Imprimer_Click" />
+                <Button Style="{StaticResource BoutonPrincipal}" Content="Fermer" IsCancel="True" />
+            </StackPanel>
+        </DockPanel>
+
+        <Border DockPanel.Dock="Top" Style="{StaticResource BlocErreurs}" Margin="0,12,0,0">
+            <TextBlock Text="{Binding Erreurs}" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource Erreur}" />
+        </Border>
+
+        <Grid Margin="0,16,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="290" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Choix du client -->
+            <DockPanel Grid.Column="0">
+                <TextBlock DockPanel.Dock="Top" Style="{StaticResource Libelle}" Margin="0,0,0,4" Text="Client (nom, prénom, email, téléphone)" />
+                <TextBox DockPanel.Dock="Top" x:Name="ChampRecherche" Style="{StaticResource Champ}" AutomationProperties.Name="Rechercher un client"
+                         Text="{Binding RechercheClient, UpdateSourceTrigger=PropertyChanged, Delay=250}" />
+                <ListBox Margin="0,8,0,0" ItemsSource="{Binding Clients}" SelectedItem="{Binding ClientSelectionne}"
+                         AutomationProperties.Name="Clients">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type donnees:Client}">
+                            <StackPanel Margin="2,3">
+                                <TextBlock Text="{Binding NomComplet}" FontSize="13" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Email}" FontSize="11" Foreground="{DynamicResource TexteSecondaire}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <!-- Séjours du client -->
+            <Border Grid.Column="2" CornerRadius="8" BorderThickness="1" ClipToBounds="True"
+                    Background="{DynamicResource FondVignette}" BorderBrush="{DynamicResource Bordure}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Background="{DynamicResource FondVignetteHorsMois}" CornerRadius="8,8,0,0"
+                            BorderBrush="{DynamicResource Bordure}" BorderThickness="0,0,0,1" Padding="0,9,10,9"
+                            TextElement.FontWeight="SemiBold" TextElement.Foreground="{DynamicResource TexteSecondaire}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" /><ColumnDefinition Width="100" /><ColumnDefinition Width="75" />
+                                <ColumnDefinition Width="90" /><ColumnDefinition Width="*" /><ColumnDefinition Width="95" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Style="{StaticResource Cellule}" Text="Arrivée" />
+                            <TextBlock Grid.Column="1" Style="{StaticResource Cellule}" Text="Départ" />
+                            <TextBlock Grid.Column="2" Style="{StaticResource CelluleNombre}" Text="Nuitées" />
+                            <TextBlock Grid.Column="3" Style="{StaticResource CelluleNombre}" Text="Pers./nuit" ToolTip="Nombre de personnes présentes chaque nuit" />
+                            <TextBlock Grid.Column="4" Style="{StaticResource Cellule}" Text="Détail" />
+                            <TextBlock Grid.Column="5" Style="{StaticResource CelluleNombre}" Text="Nuitées × p." ToolTip="Nuitées × personnes par nuit" />
+                        </Grid>
+                    </Border>
+
+                    <Border DockPanel.Dock="Bottom" Background="{DynamicResource AccentClair}" CornerRadius="0,0,8,8"
+                            BorderBrush="{DynamicResource Accent}" BorderThickness="0,2,0,0" Padding="0,11,10,11"
+                            TextElement.FontWeight="Bold">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" /><ColumnDefinition Width="100" /><ColumnDefinition Width="75" />
+                                <ColumnDefinition Width="90" /><ColumnDefinition Width="*" /><ColumnDefinition Width="95" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource Cellule}" FontSize="14" Text="Total" />
+                            <TextBlock Grid.Column="2" Style="{StaticResource CelluleNombre}" FontSize="14" Text="{Binding TotalNuitees}" />
+                            <TextBlock Grid.Column="5" Style="{StaticResource CelluleNombre}" FontSize="14" Text="{Binding TotalNuiteesPersonnes}" />
+                        </Grid>
+                    </Border>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                        <ItemsControl ItemsSource="{Binding Lignes}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate DataType="{x:Type recap:LignePresence}">
+                                    <Border Padding="0,8" BorderBrush="{DynamicResource Bordure}" BorderThickness="0,0,0,1">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="100" /><ColumnDefinition Width="100" /><ColumnDefinition Width="75" />
+                                                <ColumnDefinition Width="90" /><ColumnDefinition Width="*" /><ColumnDefinition Width="95" />
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Style="{StaticResource Cellule}" Text="{Binding Arrivee}" />
+                                            <TextBlock Grid.Column="1" Style="{StaticResource Cellule}" Text="{Binding Depart}" />
+                                            <TextBlock Grid.Column="2" Style="{StaticResource CelluleNombre}" Text="{Binding Nuitees}" />
+                                            <TextBlock Grid.Column="3" Style="{StaticResource CelluleNombre}" FontWeight="SemiBold" Text="{Binding PersonnesParNuit}" />
+                                            <TextBlock Grid.Column="4" Style="{StaticResource Cellule}" Foreground="{DynamicResource TexteSecondaire}" Text="{Binding DetailPersonnes}" />
+                                            <TextBlock Grid.Column="5" Style="{StaticResource CelluleNombre}" Text="{Binding NuiteesPersonnes}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

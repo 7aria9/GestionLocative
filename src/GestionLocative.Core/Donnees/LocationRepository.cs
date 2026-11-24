@@ -85,6 +85,26 @@ public sealed class LocationRepository(BaseDeDonnees baseDeDonnees)
         return LireTout(commande);
     }
 
+    /// <summary>
+    /// Locations dont l'arrivée tombe dans l'année <paramref name="annee"/> (une location du 28 décembre au 3 janvier
+    /// compte dans l'année de son arrivée), triées par date d'arrivée. <paramref name="idClient"/> : un seul client.
+    /// </summary>
+    public IReadOnlyList<Location> ListerParAnneeArrivee(int annee, long? idClient = null)
+    {
+        using var connexion = baseDeDonnees.Ouvrir();
+        using var commande = connexion.CreateCommand();
+        var filtreClient = idClient is null ? "" : " AND idclient = $idclient";
+        commande.CommandText = $"""
+            SELECT {Colonnes} FROM locations
+            WHERE date_debut >= $du AND date_debut < $apres{filtreClient}
+            ORDER BY date_debut, idlocation;
+            """;
+        commande.Parameters.AddWithValue("$du", Formater(new DateTime(annee, 1, 1)));
+        commande.Parameters.AddWithValue("$apres", Formater(new DateTime(annee + 1, 1, 1)));
+        if (idClient is not null) commande.Parameters.AddWithValue("$idclient", idClient.Value);
+        return LireTout(commande);
+    }
+
     /// <summary>Historique des locations d'un client, la plus récente en premier.</summary>
     public IReadOnlyList<Location> ListerParClient(long idClient)
     {

@@ -37,6 +37,14 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>Récapitulatif de l'année en cours (ou de l'année du mois affiché si on a navigué vers une autre année).</summary>
+    private void Recapitulatif_Executed(object sender, ExecutedRoutedEventArgs e)
+    {
+        var fenetre = new RecapitulatifWindow(App.Base, _vm.JourParDefaut().Year) { Owner = this };
+        fenetre.ShowDialog();
+        if (fenetre.ModificationsFaites) _vm.Actualiser();
+    }
+
     private void NouvelleLocation_Executed(object sender, ExecutedRoutedEventArgs e) =>
         NouvelleLocation(_vm.JourParDefaut());
 
