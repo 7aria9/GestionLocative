@@ -35,7 +35,7 @@ public sealed class ClientEditionViewModelTests : IDisposable
         vm.EnregistrerCommand.Execute(null);
 
         Assert.Null(vm.ClientEnregistre);
-        Assert.Contains("Dupont Jean", vm.Erreurs);
+        Assert.Contains("DUPONT Jean", vm.Erreurs);
     }
 
     [Fact]
@@ -55,5 +55,21 @@ public sealed class ClientEditionViewModelTests : IDisposable
         Assert.Null(vm.Erreurs);
         Assert.Equal("paul@example.com", location.ClientSelectionne?.Email);
         Assert.Equal("Annecy", depot.ObtenirParId(location.ClientSelectionne!.IdClient)?.Ville);
+    }
+
+    [Fact]
+    public void La_mise_en_forme_est_appliquee_et_affichee()
+    {
+        var vm = new ClientEditionViewModel(new ClientRepository(_base.Base))
+        {
+            Nom = "de la tour", Prenom = "JEAN-PIERRE", Telephone = "06 12 34 56 78", Email = " JP@Example.FR ",
+        };
+
+        vm.EnregistrerCommand.Execute(null);
+
+        Assert.Null(vm.Erreurs);
+        Assert.Equal(("DE LA TOUR", "Jean-Pierre", "+33 6 12 34 56 78", "jp@example.fr"), (vm.Nom, vm.Prenom, vm.Telephone, vm.Email));
+        var lu = new ClientRepository(_base.Base).ObtenirParId(vm.ClientEnregistre!.IdClient)!;
+        Assert.Equal(("DE LA TOUR", "Jean-Pierre", "+33612345678", "jp@example.fr"), (lu.Nom, lu.Prenom, lu.Telephone, lu.Email));
     }
 }

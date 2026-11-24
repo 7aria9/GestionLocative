@@ -42,7 +42,7 @@
                             <StackPanel Margin="2,3">
                                 <TextBlock Text="{Binding NomComplet}" FontSize="13" FontWeight="SemiBold" />
                                 <TextBlock FontSize="11" Foreground="{StaticResource TexteSecondaire}">
-                                    <Run Text="{Binding Email, Mode=OneWay}" /> · <Run Text="{Binding Telephone, Mode=OneWay}" />
+                                    <Run Text="{Binding Email, Mode=OneWay}" /> · <Run Text="{Binding TelephoneAffiche, Mode=OneWay}" />
                                 </TextBlock>
                             </StackPanel>
                         </DataTemplate>

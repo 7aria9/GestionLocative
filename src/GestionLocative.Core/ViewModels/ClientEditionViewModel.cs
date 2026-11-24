@@ -30,8 +30,8 @@ public sealed partial class ClientEditionViewModel(ClientRepository clients) : O
     {
         var client = new Client
         {
-            Nom = Nom.Trim(),
-            Prenom = Prenom.Trim(),
+            Nom = Nom,
+            Prenom = Prenom,
             Adresse = Adresse,
             CodePostal = CodePostal,
             Ville = Ville,
@@ -39,6 +39,13 @@ public sealed partial class ClientEditionViewModel(ClientRepository clients) : O
             Email = Email.Trim(),
             PlaqueImmatriculation = PlaqueImmatriculation,
         };
+
+        // Affiche la mise en forme appliquée (NOM, Prénom, +33 6 12..., email en minuscules).
+        client.Normaliser();
+        Nom = client.Nom;
+        Prenom = client.Prenom;
+        Telephone = client.TelephoneAffiche;
+        Email = client.Email;
 
         var erreurs = client.Valider();
         if (erreurs.Count > 0)

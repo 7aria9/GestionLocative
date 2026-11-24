@@ -27,10 +27,10 @@ public sealed class LocationsCalendarSourceTests : IDisposable
                 new DateOnly(2026, 12, 2),
             ],
             entrees.Select(e => e.Date));
-        Assert.Equal("Dupont Jean", entrees[0].Libelle);
-        Assert.Equal("Départ Dupont Jean", entrees[2].Libelle);
+        Assert.Equal("DUPONT Jean", entrees[0].Libelle);
+        Assert.Equal("Départ DUPONT Jean", entrees[2].Libelle);
 
         var avecArrivee = source.GetEntries(new DateOnly(2026, 11, 1), new DateOnly(2026, 11, 30));
-        Assert.Equal("Arrivée Dupont Jean", avecArrivee[0].Libelle);
+        Assert.Equal("Arrivée DUPONT Jean", avecArrivee[0].Libelle);
     }
 }

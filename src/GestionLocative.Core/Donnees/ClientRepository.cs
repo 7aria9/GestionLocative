@@ -95,6 +95,13 @@ public sealed class ClientRepository(BaseDeDonnees baseDeDonnees)
                 """;
             var echappe = recherche.Trim().Replace(@"\", @"\\").Replace("%", @"\%").Replace("_", @"\_");
             commande.Parameters.AddWithValue("$motif", $"%{echappe}%");
+
+            // Les téléphones sont enregistrés au format international : « 06 12 » doit retrouver « +33612... ».
+            if (MotifTelephone(recherche) is { } motifTelephone)
+            {
+                filtre += " OR telephone LIKE $motif_tel";
+                commande.Parameters.AddWithValue("$motif_tel", motifTelephone);
+            }
         }
         commande.CommandText = $"SELECT {Colonnes} FROM clients {filtre} ORDER BY nom COLLATE NOCASE, prenom COLLATE NOCASE;";
 
@@ -104,8 +111,21 @@ public sealed class ClientRepository(BaseDeDonnees baseDeDonnees)
         return clients;
     }
 
+    /// <summary>Recherche tapée comme un numéro (« 06 12 34 ») → motif sur le format international (« %61234% ») ; sinon null.</summary>
+    private static string? MotifTelephone(string recherche)
+    {
+        var texte = recherche.Trim();
+        if (texte.Length < 2 || !texte.All(c => char.IsAsciiDigit(c) || c is ' ' or '.' or '-' or '+')) return null;
+        var chiffres = new string(texte.Where(char.IsAsciiDigit).ToArray());
+        if (chiffres.Length < 2) return null;
+        if (chiffres.StartsWith("00")) chiffres = chiffres[2..];
+        else if (chiffres[0] == '0') chiffres = chiffres[1..];
+        return $"%{chiffres}%";
+    }
+
     private static void Verifier(Client client)
     {
+        client.Normaliser();
         var erreurs = client.Valider();
         if (erreurs.Count > 0) throw new DonneesInvalidesException(erreurs);
     }
