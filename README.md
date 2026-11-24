@@ -29,8 +29,12 @@ Le jour d'arrivée (et chaque lundi, en début de ligne) montre aussi le nombre 
 le prix HT et le prix TTC. Le survol d'une location affiche tout le détail (dates, voyageurs, Airbnb, n° de réservation).
 
 - **Double-clic sur une location** : fenêtre de modification, avec un bouton « Supprimer la location… » (confirmation demandée).
-- **Clic droit sur une location** : copie dans le presse-papiers de l'email, du téléphone, de la plaque d'immatriculation,
-  du nom et prénom du client, ou du **message prestataire** :
+- **Clic droit sur une location** : deux sous-menus.
+  - **Prestataire** : copier le téléphone principal du prestataire (réglé dans **Paramètres**, avec un numéro secondaire)
+    ou le **message prestataire** ci-dessous.
+  - **Location** : copier le nom, le prénom, l'email, le téléphone ou la plaque d'immatriculation du client.
+
+  Message prestataire :
 
   ```
   du 05/12/2026 au 08/12/2026
@@ -68,7 +72,8 @@ Un seul fichier SQLite contient les clients et les locations.
 | Email | `email` | obligatoire, format d'email vérifié, enregistré en minuscules, unique |
 | Plaque d'immatriculation | `plaque_immatriculation` | facultative, enregistrée en majuscules |
 
-**Réglages communs** (`reglages`) : paires clé / valeur partagées par tous les postes, par ex. `taux_tva` (10 par défaut).
+**Réglages communs** (`reglages`) : paires clé / valeur partagées par tous les postes : `taux_tva` (10 par défaut),
+`telephone_prestataire_principal` et `telephone_prestataire_secondaire` (format international, absents si non renseignés).
 
 **Locations** (`locations`)
 
