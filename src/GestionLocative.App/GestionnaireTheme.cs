@@ -6,8 +6,8 @@ using GestionLocative.Core.Parametres;
 namespace GestionLocative.App;
 
 /// <summary>
-/// Change le thème (clair ou sombre) de toute l'application, sans redémarrer : on remplace le dictionnaire
-/// de couleurs (Themes/Clair.xaml ou Themes/Sombre.xaml), lu partout en DynamicResource, et on accorde la
+/// Change le thème (clair ou sombre) de toute l'application, sans redémarrer : on installe les couleurs
+/// de Themes/Clair.xaml ou Themes/Sombre.xaml, lues partout en DynamicResource, et on accorde la
 /// barre de titre Windows.
 /// </summary>
 public static class GestionnaireTheme
@@ -33,12 +33,14 @@ public static class GestionnaireTheme
             _enregistre = true;
         }
 
+        // Les couleurs du thème sont recopiées au premier niveau des ressources de l'application : elles
+        // passent alors avant le dictionnaire clair fusionné dans App.xaml, et chaque DynamicResource est
+        // prévenu du changement. (Remplacer le dictionnaire fusionné ne suffisait pas : la recherche du
+        // dictionnaire clair d'origine échouait, et ses couleurs restaient prioritaires.)
         var nom = theme == ThemeInterface.Sombre ? "Sombre" : "Clair";
         var couleurs = new ResourceDictionary { Source = new Uri($"pack://application:,,,/GestionLocative;component/Themes/{nom}.xaml") };
-        var dictionnaires = application.Resources.MergedDictionaries;
-        var ancien = dictionnaires.FirstOrDefault(d => d.Source?.OriginalString.Contains("/Themes/", StringComparison.OrdinalIgnoreCase) == true);
-        if (ancien is null) dictionnaires.Insert(0, couleurs);
-        else dictionnaires[dictionnaires.IndexOf(ancien)] = couleurs;
+        foreach (var cle in couleurs.Keys)
+            application.Resources[cle] = couleurs[cle];
 
         var aChange = Actuel != theme;
         Actuel = theme;

@@ -1,0 +1,31 @@
+<Window x:Class="GestionLocative.App.Views.Dialogue"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Width="460" SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="{DynamicResource FondFenetre}"
+        Foreground="{DynamicResource Texte}"
+        FontFamily="Segoe UI">
+
+    <!-- Boîte de message aux couleurs du thème, à la place de la MessageBox de Windows -->
+    <StackPanel Margin="24,22,24,20">
+        <DockPanel LastChildFill="True">
+            <!-- Pastille d'icône (information, attention, erreur, question) -->
+            <Border x:Name="Pastille" DockPanel.Dock="Left" Width="40" Height="40" CornerRadius="20"
+                    Margin="0,0,16,0" VerticalAlignment="Top" Background="{DynamicResource AccentDegrade}">
+                <TextBlock x:Name="Icone" FontFamily="Segoe MDL2 Assets" FontSize="18"
+                           Foreground="{DynamicResource TexteSurAccent}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Border>
+            <StackPanel VerticalAlignment="Center">
+                <TextBlock x:Name="Titre" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" Margin="0,0,0,6" />
+                <TextBlock x:Name="Message" FontSize="13" TextWrapping="Wrap" LineHeight="19"
+                           Foreground="{DynamicResource TexteSecondaire}" />
+            </StackPanel>
+        </DockPanel>
+
+        <StackPanel x:Name="Boutons" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0" />
+    </StackPanel>
+</Window>

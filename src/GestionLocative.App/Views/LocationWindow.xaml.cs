@@ -25,7 +25,7 @@ public partial class LocationWindow : Window
     {
         InitializeComponent();
         _vm = vm;
-        _vm.Confirmer = question => MessageBox.Show(this, question, _vm.Titre,
+        _vm.Confirmer = question => Dialogue.Afficher(this, question, _vm.Titre,
             MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
         _vm.Enregistree += (_, location) =>
         {

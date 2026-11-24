@@ -56,7 +56,7 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            var reponse = MessageBox.Show(
+            var reponse = Dialogue.Afficher(null,
                 $"Impossible d'ouvrir la base de données :\n{chemin}\n\n{ex.Message}\n\n" +
                 "Si elle est sur le réseau, vérifiez que l'ordinateur qui la partage est allumé.\n\n" +
                 "Voulez-vous choisir un autre emplacement ?",

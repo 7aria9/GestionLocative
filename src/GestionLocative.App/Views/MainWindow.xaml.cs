@@ -32,7 +32,7 @@ public partial class MainWindow : Window
         {
             App.Base = fenetre.Base;
             _vm.Actualiser();
-            MessageBox.Show(this, $"Base de données utilisée :\n{App.Base.CheminFichier}",
+            Dialogue.Afficher(this, $"Base de données utilisée :\n{App.Base.CheminFichier}",
                 "Paramètres", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
@@ -149,7 +149,7 @@ public partial class MainWindow : Window
             // Presse-papiers momentanément occupé par une autre application : on réessaie une fois.
             Thread.Sleep(100);
             try { Clipboard.SetText(texte); }
-            catch (Exception) { MessageBox.Show("Le presse-papiers est occupé par une autre application, réessayez.", "Copier"); }
+            catch (Exception) { Dialogue.Afficher(null, "Le presse-papiers est occupé par une autre application, réessayez.", "Copier", icone: MessageBoxImage.Warning); }
         }
     }
 
@@ -160,7 +160,7 @@ public partial class MainWindow : Window
             var resultat = lecture();
             if (resultat is null)
             {
-                MessageBox.Show(this, "Cette location n'existe plus (supprimée depuis un autre poste ?).",
+                Dialogue.Afficher(this, "Cette location n'existe plus (supprimée depuis un autre poste ?).",
                     "Gestion locative", MessageBoxButton.OK, MessageBoxImage.Information);
                 _vm.Actualiser();
             }
@@ -168,7 +168,7 @@ public partial class MainWindow : Window
         }
         catch (Exception ex)
         {
-            MessageBox.Show(this, $"Impossible de lire la location :\n{ex.Message}",
+            Dialogue.Afficher(this, $"Impossible de lire la location :\n{ex.Message}",
                 "Gestion locative", MessageBoxButton.OK, MessageBoxImage.Warning);
             return null;
         }
