@@ -1,0 +1,163 @@
+<Window x:Class="GestionLocative.App.Views.LocationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:GestionLocative.Core.ViewModels;assembly=GestionLocative.Core"
+        xmlns:donnees="clr-namespace:GestionLocative.Core.Donnees;assembly=GestionLocative.Core"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:LocationEditionViewModel}"
+        Title="Nouvelle location"
+        Width="900" SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="{StaticResource FondFenetre}"
+        FontFamily="Segoe UI"
+        FocusManager.FocusedElement="{Binding ElementName=ChampRecherche}">
+
+    <StackPanel Margin="24">
+        <TextBlock Text="Nouvelle location" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Texte}" />
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="28" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Colonne gauche : client -->
+            <StackPanel Grid.Column="0">
+                <TextBlock Style="{StaticResource TitreSection}" Text="Client *" />
+                <TextBlock Style="{StaticResource Libelle}" Text="Rechercher (nom, prénom, email, téléphone, plaque)" />
+                <TextBox x:Name="ChampRecherche" Style="{StaticResource Champ}" AutomationProperties.Name="Rechercher un client"
+                         Text="{Binding RechercheClient, UpdateSourceTrigger=PropertyChanged, Delay=250}" />
+
+                <ListBox Height="230" Margin="0,8,0,0"
+                         ItemsSource="{Binding Clients}"
+                         SelectedItem="{Binding ClientSelectionne}"
+                         AutomationProperties.Name="Clients trouvés">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type donnees:Client}">
+                            <StackPanel Margin="2,3">
+                                <TextBlock Text="{Binding NomComplet}" FontSize="13" FontWeight="SemiBold" />
+                                <TextBlock FontSize="11" Foreground="{StaticResource TexteSecondaire}">
+                                    <Run Text="{Binding Email, Mode=OneWay}" /> · <Run Text="{Binding Telephone, Mode=OneWay}" />
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <DockPanel Margin="0,8,0,0" LastChildFill="True">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource Bouton}" Content="+ Nouveau client…"
+                            ToolTip="Créer un client puis le choisir pour cette location"
+                            Click="NouveauClient_Click" />
+                    <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" FontSize="12">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="{StaticResource Succes}" />
+                                <Setter Property="Text" Value="{Binding ClientSelectionne.NomComplet, StringFormat='Client choisi : {0}'}" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ClientChoisi}" Value="False">
+                                        <Setter Property="Foreground" Value="{StaticResource TexteSecondaire}" />
+                                        <Setter Property="Text" Value="Choisissez un client dans la liste ou créez-en un." />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </DockPanel>
+            </StackPanel>
+
+            <!-- Colonne droite : séjour, tarif, voyageurs -->
+            <StackPanel Grid.Column="2">
+                <TextBlock Style="{StaticResource TitreSection}" Text="Séjour" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="90" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource Libelle}" Text="Arrivée *" />
+                    <TextBlock Grid.Row="0" Grid.Column="2" Style="{StaticResource Libelle}" Text="Heure" />
+                    <DatePicker Grid.Row="1" Grid.Column="0" Height="32" VerticalContentAlignment="Center"
+                                AutomationProperties.Name="Date d'arrivée"
+                                SelectedDate="{Binding DateDebut}" />
+                    <TextBox Grid.Row="1" Grid.Column="2" Style="{StaticResource Champ}" AutomationProperties.Name="Heure d'arrivée"
+                             Text="{Binding HeureDebut, UpdateSourceTrigger=PropertyChanged}" />
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Style="{StaticResource Libelle}" Text="Départ *" />
+                    <TextBlock Grid.Row="2" Grid.Column="2" Style="{StaticResource Libelle}" Text="Heure" />
+                    <DatePicker Grid.Row="3" Grid.Column="0" Height="32" VerticalContentAlignment="Center"
+                                AutomationProperties.Name="Date de départ"
+                                SelectedDate="{Binding DateFin}" />
+                    <TextBox Grid.Row="3" Grid.Column="2" Style="{StaticResource Champ}" AutomationProperties.Name="Heure de départ"
+                             Text="{Binding HeureFin, UpdateSourceTrigger=PropertyChanged}" />
+                </Grid>
+                <TextBlock Text="{Binding ResumeSejour}" FontSize="12" Margin="0,6,0,0" Foreground="{StaticResource TexteSecondaire}" />
+
+                <TextBlock Style="{StaticResource TitreSection}" Text="Tarif et voyageurs" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+                        <TextBlock Style="{StaticResource Libelle}" Text="Tarif TTC (€) *" />
+                        <TextBox Style="{StaticResource Champ}" AutomationProperties.Name="Tarif TTC en euros"
+                                 Text="{Binding TarifTtc, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Grid.Column="0">
+                        <TextBlock Style="{StaticResource Libelle}" Text="Adultes" />
+                        <TextBox Style="{StaticResource Champ}" AutomationProperties.Name="Nombre d'adultes"
+                                 Text="{Binding NombreAdultes, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="2">
+                        <TextBlock Style="{StaticResource Libelle}" Text="Enfants" />
+                        <TextBox Style="{StaticResource Champ}" AutomationProperties.Name="Nombre d'enfants"
+                                 Text="{Binding NombreEnfants, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                    <StackPanel Grid.Row="1" Grid.Column="4">
+                        <TextBlock Style="{StaticResource Libelle}" Text="Bébés" />
+                        <TextBox Style="{StaticResource Champ}" AutomationProperties.Name="Nombre de bébés"
+                                 Text="{Binding NombreBebes, UpdateSourceTrigger=PropertyChanged}" />
+                    </StackPanel>
+                </Grid>
+
+                <TextBlock Style="{StaticResource TitreSection}" Text="Réservation" />
+                <CheckBox Content="Réservée via Airbnb" FontSize="13" Margin="0,10,0,0"
+                          IsChecked="{Binding Airbnb}" />
+                <TextBlock Style="{StaticResource Libelle}" Text="N° de réservation" />
+                <TextBox Style="{StaticResource Champ}" AutomationProperties.Name="Numéro de réservation"
+                         Text="{Binding NumeroReservation, UpdateSourceTrigger=PropertyChanged}" />
+            </StackPanel>
+        </Grid>
+
+        <Border Style="{StaticResource BlocErreurs}">
+            <TextBlock Text="{Binding Erreurs}" TextWrapping="Wrap" FontSize="13" Foreground="{StaticResource Erreur}" />
+        </Border>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+            <Button Style="{StaticResource Bouton}" Content="Annuler" IsCancel="True" />
+            <Button Style="{StaticResource BoutonPrincipal}" Content="Enregistrer la location" IsDefault="True"
+                    Command="{Binding EnregistrerCommand}" />
+        </StackPanel>
+    </StackPanel>
+</Window>

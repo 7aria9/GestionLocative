@@ -23,8 +23,19 @@ Calendrier du mois en cours, une vignette par jour, semaine commençant le lundi
 Les boutons en haut à droite (ou les touches Page préc. / Page suiv.) changent de mois.
 Les jours des mois voisins complètent la première et la dernière semaine, grisés ; le jour courant est mis en évidence.
 
-Chaque vignette peut afficher une liste d'éléments (`CalendarEntry`) fournis par une `ICalendarEntrySource` :
-c'est là que viendront se brancher les réservations et locations.
+Chaque vignette affiche les locations du jour (`LocationsCalendarSource`) : « Arrivée NOM » le premier jour,
+le nom du client les jours intermédiaires et « Départ NOM » le dernier jour.
+
+## Créer une location
+
+Bouton **+ Nouvelle location** (ou Ctrl+N), ou **double-clic sur un jour** du calendrier pour commencer la location ce jour-là.
+
+- Arrivée à 16h00 et départ le lendemain à 10h00 par défaut (heures modifiables, ex. « 15h30 »).
+- Client obligatoire : le champ de recherche filtre la liste (nom, prénom, email, téléphone, plaque).
+  Le bouton **+ Nouveau client…** ouvre la fiche client ; une fois enregistré, il est choisi automatiquement.
+- Tarif TTC obligatoire (« 450 », « 450,50 € »...), nombre d'adultes / enfants / bébés, Airbnb, n° de réservation.
+- Si les dates chevauchent une autre location, le programme demande confirmation avant d'enregistrer
+  (un départ à 10h et une arrivée à 16h le même jour ne se chevauchent pas).
 
 ## Base de données
 
