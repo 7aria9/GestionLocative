@@ -45,6 +45,9 @@ public sealed class RapportImport
     /// <summary>Problème qui empêche tout l'import (colonne obligatoire absente...) ; null sinon.</summary>
     public string? ErreurFichier { get; init; }
 
+    /// <summary>Points d'attention qui n'empêchent pas l'import (colonne n° client absente...).</summary>
+    public IReadOnlyList<string> Avertissements { get; init; } = [];
+
     public required IReadOnlyList<LigneRapport> Lignes { get; init; }
 
     /// <summary>Vrai une fois les lignes enregistrées dans la base.</summary>
@@ -92,6 +95,7 @@ public sealed class RapportImport
         };
         lignes.AddRange(ColonnesReconnues.Select(c => "  " + c));
         if (ColonnesIgnorees.Count > 0) lignes.Add($"Colonnes ignorées : {string.Join(", ", ColonnesIgnorees)}");
+        foreach (var avertissement in Avertissements) lignes.Add("Attention : " + avertissement);
 
         foreach (var (statut, titre) in new[] { (StatutLigne.Rejetee, "Lignes rejetées"), (StatutLigne.DejaPresente, "Lignes déjà présentes") })
         {
