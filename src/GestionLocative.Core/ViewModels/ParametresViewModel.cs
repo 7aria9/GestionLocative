@@ -6,13 +6,15 @@ using GestionLocative.Core.Parametres;
 
 namespace GestionLocative.Core.ViewModels;
 
-/// <summary>Fenêtre « Paramètres » : emplacement de la base de données et taux de TVA.</summary>
+/// <summary>Fenêtre « Paramètres » : emplacement de la base de données, taux de TVA et téléphones du prestataire.</summary>
 public sealed partial class ParametresViewModel : ObservableObject
 {
     private static readonly CultureInfo Francais = CultureInfo.GetCultureInfo("fr-FR");
 
     private readonly MagasinParametres _magasin;
     private readonly string _tauxTvaInitial;
+    private readonly string _telephonePrincipalInitial;
+    private readonly string _telephoneSecondaireInitial;
 
     /// <param name="baseActuelle">Base en cours d'utilisation, pour lire le taux de TVA (null au démarrage si elle est inaccessible).</param>
     public ParametresViewModel(MagasinParametres magasin, BaseDeDonnees? baseActuelle = null)
@@ -21,13 +23,30 @@ public sealed partial class ParametresViewModel : ObservableObject
         _cheminBase = magasin.Charger().CheminBase;
 
         var taux = ReglagesRepository.TauxTvaParDefaut;
+        string? principal = null, secondaire = null;
         if (baseActuelle is not null)
         {
-            try { taux = new ReglagesRepository(baseActuelle).ObtenirTauxTva(); }
-            catch (Exception) { /* base inaccessible : on affiche la valeur par défaut */ }
+            try
+            {
+                var reglages = new ReglagesRepository(baseActuelle);
+                taux = reglages.ObtenirTauxTva();
+                principal = reglages.ObtenirTelephonePrestatairePrincipal();
+                secondaire = reglages.ObtenirTelephonePrestataireSecondaire();
+            }
+            catch (Exception) { /* base inaccessible : on affiche les valeurs par défaut */ }
         }
         _tauxTvaInitial = _tauxTva = taux.ToString("0.##", Francais);
+        _telephonePrincipalInitial = _telephonePrestatairePrincipal = MiseEnForme.TelephoneAffiche(principal);
+        _telephoneSecondaireInitial = _telephonePrestataireSecondaire = MiseEnForme.TelephoneAffiche(secondaire);
     }
+
+    /// <summary>Téléphone principal du prestataire (facultatif), commun à tous les postes.</summary>
+    [ObservableProperty]
+    private string _telephonePrestatairePrincipal;
+
+    /// <summary>Téléphone secondaire du prestataire (facultatif), commun à tous les postes.</summary>
+    [ObservableProperty]
+    private string _telephonePrestataireSecondaire;
 
     /// <summary>Taux de TVA en %, commun à tous les postes (enregistré dans la base). Ex. « 10 » ou « 5,5 ».</summary>
     [ObservableProperty]
@@ -73,20 +92,34 @@ public sealed partial class ParametresViewModel : ObservableObject
             }
         }
 
+        // Même règle pour les téléphones : vérifiés avant tout, écrits seulement s'ils ont été modifiés.
+        var principalModifie = TelephonePrestatairePrincipal.Trim() != _telephonePrincipalInitial;
+        var secondaireModifie = TelephonePrestataireSecondaire.Trim() != _telephoneSecondaireInitial;
+        if (principalModifie && !TelephoneValideOuVide(TelephonePrestatairePrincipal))
+        {
+            AfficherMessage("Le numéro principal du prestataire n'est pas valide (ex. 06 12 34 56 78).", erreur: true);
+            return;
+        }
+        if (secondaireModifie && !TelephoneValideOuVide(TelephonePrestataireSecondaire))
+        {
+            AfficherMessage("Le numéro secondaire du prestataire n'est pas valide (ex. 06 12 34 56 78).", erreur: true);
+            return;
+        }
+
         var baseDeDonnees = EssayerOuvrir();
         if (baseDeDonnees is null) return;
 
-        if (nouveauTaux is not null)
+        try
         {
-            try
-            {
-                new ReglagesRepository(baseDeDonnees).DefinirTauxTva(nouveauTaux.Value);
-            }
-            catch (Exception ex)
-            {
-                AfficherMessage($"Impossible d'enregistrer le taux de TVA : {ex.Message}", erreur: true);
-                return;
-            }
+            var reglages = new ReglagesRepository(baseDeDonnees);
+            if (nouveauTaux is not null) reglages.DefinirTauxTva(nouveauTaux.Value);
+            if (principalModifie) reglages.DefinirTelephonePrestatairePrincipal(TelephonePrestatairePrincipal);
+            if (secondaireModifie) reglages.DefinirTelephonePrestataireSecondaire(TelephonePrestataireSecondaire);
+        }
+        catch (Exception ex)
+        {
+            AfficherMessage($"Impossible d'enregistrer les réglages : {ex.Message}", erreur: true);
+            return;
         }
 
         var parametres = _magasin.Charger();
@@ -103,6 +136,9 @@ public sealed partial class ParametresViewModel : ObservableObject
             ? taux
             : null;
     }
+
+    private static bool TelephoneValideOuVide(string texte) =>
+        string.IsNullOrWhiteSpace(texte) || MiseEnForme.Telephone(texte) is not null;
 
     private bool PeutEnregistrer() => !string.IsNullOrWhiteSpace(CheminBase);
 

@@ -69,6 +69,55 @@ public sealed class ReglagesTests : IDisposable
     }
 
     [Fact]
+    public void Telephones_du_prestataire_au_format_international_et_effacables()
+    {
+        var reglages = new ReglagesRepository(_base.Base);
+        Assert.Null(reglages.ObtenirTelephonePrestatairePrincipal());
+
+        reglages.DefinirTelephonePrestatairePrincipal("06 12 34 56 78");
+        reglages.DefinirTelephonePrestataireSecondaire("0033 7 00 00 00 01");
+        Assert.Equal("+33612345678", reglages.ObtenirTelephonePrestatairePrincipal());
+        Assert.Equal("+33700000001", reglages.ObtenirTelephonePrestataireSecondaire());
+
+        reglages.DefinirTelephonePrestataireSecondaire(" ");
+        Assert.Null(reglages.ObtenirTelephonePrestataireSecondaire());
+        Assert.Throws<DonneesInvalidesException>(() => reglages.DefinirTelephonePrestatairePrincipal("0612"));
+    }
+
+    [Fact]
+    public void La_fenetre_parametres_affiche_et_enregistre_les_telephones_du_prestataire()
+    {
+        new ReglagesRepository(_base.Base).DefinirTelephonePrestatairePrincipal("0612345678");
+        var magasin = new MagasinParametres(Path.Combine(_base.Dossier, "parametres.json"));
+        var vm = new ParametresViewModel(magasin, _base.Base) { CheminBase = _base.Base.CheminFichier };
+        Assert.Equal("+33 6 12 34 56 78", vm.TelephonePrestatairePrincipal);
+        Assert.Equal("", vm.TelephonePrestataireSecondaire);
+
+        vm.TelephonePrestataireSecondaire = "07 11 22 33 44";
+        vm.EnregistrerCommand.Execute(null);
+
+        Assert.False(vm.MessageEstErreur);
+        var reglages = new ReglagesRepository(_base.Base);
+        Assert.Equal("+33612345678", reglages.ObtenirTelephonePrestatairePrincipal());
+        Assert.Equal("+33711223344", reglages.ObtenirTelephonePrestataireSecondaire());
+    }
+
+    [Fact]
+    public void Un_telephone_prestataire_invalide_bloque_l_enregistrement()
+    {
+        var magasin = new MagasinParametres(Path.Combine(_base.Dossier, "parametres.json"));
+        var vm = new ParametresViewModel(magasin, _base.Base) { CheminBase = _base.Base.CheminFichier, TelephonePrestatairePrincipal = "12" };
+        var appels = 0;
+        vm.Enregistre += (_, _) => appels++;
+
+        vm.EnregistrerCommand.Execute(null);
+
+        Assert.Equal(0, appels);
+        Assert.True(vm.MessageEstErreur);
+        Assert.Null(new ReglagesRepository(_base.Base).ObtenirTelephonePrestatairePrincipal());
+    }
+
+    [Fact]
     public void Changer_de_base_sans_toucher_au_taux_garde_celui_de_la_nouvelle_base()
     {
         using var autre = new BaseTemporaire();

@@ -80,15 +80,29 @@ public partial class MainWindow : Window
         }
         var (loc, client) = (donnees.location, donnees.client);
 
+        string? telephonePrestataire = null;
+        try { telephonePrestataire = new ReglagesRepository(App.Base).ObtenirTelephonePrestatairePrincipal(); }
+        catch (Exception) { /* réglage illisible : l'élément sera grisé */ }
+
         menu.Items.Clear();
-        menu.Items.Add(ElementCopie("Copier l'email", client.Email));
-        menu.Items.Add(ElementCopie("Copier le téléphone", client.TelephoneAffiche));
-        menu.Items.Add(ElementCopie("Copier la plaque d'immatriculation", client.PlaqueImmatriculation));
-        menu.Items.Add(ElementCopie("Copier le nom et le prénom", client.NomComplet));
-        menu.Items.Add(new Separator());
+
+        var prestataire = new MenuItem { Header = "Prestataire" };
+        var numero = ElementCopie("Copier le téléphone principal", MiseEnForme.TelephoneAffiche(telephonePrestataire));
+        if (string.IsNullOrWhiteSpace(telephonePrestataire)) numero.Header = "Copier le téléphone principal (à renseigner dans Paramètres)";
+        prestataire.Items.Add(numero);
         var message = ElementCopie("Message prestataire", TextesLocation.MessagePrestataire(loc, client));
         message.ToolTip = TextesLocation.MessagePrestataire(loc, client);
-        menu.Items.Add(message);
+        prestataire.Items.Add(message);
+        menu.Items.Add(prestataire);
+
+        var location = new MenuItem { Header = "Location" };
+        location.Items.Add(ElementCopie("Copier le nom", client.Nom));
+        location.Items.Add(ElementCopie("Copier le prénom", client.Prenom));
+        location.Items.Add(ElementCopie("Copier l'email", client.Email));
+        location.Items.Add(ElementCopie("Copier le téléphone", client.TelephoneAffiche));
+        location.Items.Add(ElementCopie("Copier la plaque d'immatriculation", client.PlaqueImmatriculation));
+        menu.Items.Add(location);
+
         menu.Items.Add(new Separator());
         var modifier = new MenuItem { Header = "Modifier ou supprimer la location…" };
         modifier.Click += (_, _) =>
