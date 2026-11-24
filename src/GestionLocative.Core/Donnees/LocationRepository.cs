@@ -19,7 +19,14 @@ public sealed class LocationRepository(BaseDeDonnees baseDeDonnees)
     {
         Verifier(location);
         using var connexion = baseDeDonnees.Ouvrir();
+        Inserer(connexion, null, location);
+    }
+
+    /// <summary>INSERT d'une location déjà validée, dans une connexion (et transaction) existante.</summary>
+    internal static void Inserer(SqliteConnection connexion, SqliteTransaction? transaction, Location location)
+    {
         using var commande = connexion.CreateCommand();
+        commande.Transaction = transaction;
         commande.CommandText = """
             INSERT INTO locations (date_debut, date_fin, idclient, tarif_ttc_centimes,
                 nombre_adultes, nombre_enfants, nombre_bebes, airbnb, numero_reservation)

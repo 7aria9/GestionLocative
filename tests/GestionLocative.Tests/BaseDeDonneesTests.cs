@@ -16,7 +16,7 @@ public sealed class BaseDeDonneesTests : IDisposable
         using var connexion = _temp.Base.Ouvrir();
         using var commande = connexion.CreateCommand();
         commande.CommandText = "SELECT group_concat(name, ',') FROM (SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name);";
-        Assert.Equal("clients,locations,reglages", commande.ExecuteScalar());
+        Assert.Equal("clients,clients_origine,locations,reglages", commande.ExecuteScalar());
     }
 
     [Fact]
@@ -26,7 +26,7 @@ public sealed class BaseDeDonneesTests : IDisposable
         using (var connexion = _temp.Base.Ouvrir())
         {
             using var commande = connexion.CreateCommand();
-            commande.CommandText = "DROP TABLE reglages; PRAGMA user_version = 1;";
+            commande.CommandText = "DROP TABLE reglages; DROP TABLE clients_origine; PRAGMA user_version = 1;";
             commande.ExecuteNonQuery();
         }
 
@@ -35,7 +35,7 @@ public sealed class BaseDeDonneesTests : IDisposable
         Assert.Single(new ClientRepository(_temp.Base).Lister());
         Assert.Equal(10m, new ReglagesRepository(_temp.Base).ObtenirTauxTva());
         using var verification = _temp.Base.Ouvrir();
-        Assert.Equal(2L, Lire(verification, "PRAGMA user_version;"));
+        Assert.Equal((long)BaseDeDonnees.VersionSchema, Lire(verification, "PRAGMA user_version;"));
     }
 
     [Fact]

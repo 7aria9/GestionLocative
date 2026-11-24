@@ -14,7 +14,8 @@ Réécriture en C# moderne d'un logiciel de gestion locative (anciennement WinDe
 | Dossier | Contenu |
 | --- | --- |
 | `src/GestionLocative.App` | Application WPF : fenêtres, styles, affichage. |
-| `src/GestionLocative.Core` | Logique sans dépendance à l'interface : calendrier, base de données (`Donnees`), réglages (`Parametres`), ViewModels. |
+| `src/GestionLocative.Core` | Logique sans dépendance à l'interface : calendrier, base de données (`Donnees`), import CSV (`Import`), réglages (`Parametres`), ViewModels. |
+| `exemples-import` | Fichiers CSV d'exemple pour l'import des clients et des locations. |
 | `tests/GestionLocative.Tests` | Tests automatiques de `GestionLocative.Core`. |
 
 ## Écran principal
@@ -65,6 +66,66 @@ Bouton **+ Nouvelle location** (ou Ctrl+N), ou **double-clic sur un jour** du ca
 - Si les dates chevauchent une autre location, le programme demande confirmation avant d'enregistrer
   (un départ à 10h et une arrivée à 16h le même jour ne se chevauchent pas).
 
+## Importer des clients et des locations (CSV)
+
+Bouton **Importer…** en haut de l'écran principal. Il sert surtout à reprendre les données de l'ancien programme WinDev
+(ou d'un tableau Excel). On importe **d'abord les clients, puis les locations**.
+
+1. Choisir **1. Clients** ou **2. Locations** (le programme bascule tout seul s'il reconnaît l'autre type de fichier).
+2. **Choisir un fichier…** : un aperçu s'affiche sans rien enregistrer. Chaque ligne est marquée **À importer**,
+   **Déjà présente** (ignorée) ou **Rejetée**, avec la raison. **Copier le rapport** copie la liste des lignes à corriger.
+3. **Importer** enregistre en une seule fois les lignes « À importer » (tout ou rien en cas de problème).
+
+Réimporter le même fichier ne crée pas de doublons : on peut corriger les lignes rejetées dans Excel et relancer l'import.
+
+### Format du fichier
+
+- Première ligne = noms des colonnes. L'ordre des colonnes est libre et les colonnes inconnues sont ignorées.
+- Séparateur `;` (Excel français, WinDev), `,` ou tabulation, détecté automatiquement (une première ligne `sep=;` est aussi acceptée).
+- Encodage UTF-8 (avec ou sans BOM) ou Windows-1252 (« CSV (séparateur : point-virgule) » d'Excel, exports WinDev) : les accents sont conservés.
+- Une valeur contenant le séparateur ou un retour à la ligne doit être entre guillemets (`"3, place de l'Église"`), comme le font Excel et WinDev.
+- Les noms de colonnes sont reconnus sans tenir compte des majuscules, des accents, des espaces ni de la ponctuation :
+  `N° réservation`, `num_reservation` et `NumReservation` sont équivalents.
+
+Exemples prêts à l'emploi dans [`exemples-import/`](exemples-import) : `clients.csv` (Windows-1252) et `locations.csv` (UTF-8).
+
+**Clients**
+
+| Champ | Noms de colonne reconnus (exemples) | Règle |
+| --- | --- | --- |
+| N° client d'origine | `IdClient`, `N° client`, `NumClient`, `Code client`, `Id` | facultatif mais conseillé : sert à rattacher les locations (`0042` = `42`) |
+| Nom | `Nom`, `Nom client` | **obligatoire**, mis en MAJUSCULES |
+| Prénom | `Prénom`, `Prénoms` | obligatoire, majuscule initiale |
+| Téléphone | `Téléphone`, `Tél`, `Portable`, `Mobile`, `GSM` | obligatoire, converti au format international ; s'il y a plusieurs colonnes (fixe, portable), la première non vide est prise |
+| Email | `Email`, `E-mail`, `Mail`, `Courriel`, `Adresse mail` | **obligatoire**, valide, sert à repérer les doublons |
+| Adresse | `Adresse`, `Adresse 1`, `Adresse 2`, `Rue` | facultatif ; plusieurs colonnes sont mises bout à bout |
+| Code postal, Ville | `Code postal`, `CP` / `Ville`, `Commune` | facultatifs |
+| Plaque | `Plaque`, `Immatriculation`, `Immat` | facultatif, en majuscules |
+
+Les colonnes **Nom** et **Email** doivent exister. Les mêmes mises en forme et vérifications que dans la fiche client
+s'appliquent ; une ligne qui ne les respecte pas est rejetée (ex. téléphone ou email manquant).
+**Doublons** : un client dont l'email existe déjà dans la base n'est pas recréé et sa fiche n'est pas modifiée ;
+deux lignes du fichier avec le même email ne donnent qu'un seul client. Dans les deux cas, l'ancien numéro de la ligne
+ignorée est quand même associé à la fiche retenue, pour que ses locations la retrouvent.
+
+**Locations**
+
+| Champ | Noms de colonne reconnus (exemples) | Règle |
+| --- | --- | --- |
+| N° client d'origine | `IdClient`, `N° client`, `NumClient`, `Code client` | le client est cherché par ce numéro… |
+| Email du client | `Email`, `Mail`, `Email client` | … sinon par son email (au moins l'une des deux colonnes) |
+| Arrivée | `Date arrivée`, `Date début`, `Début`, `Du` | **obligatoire** : `05/12/2026`, `05/12/26`, `2026-12-05`, `20261205`, avec ou sans heure (`05/12/2026 15:30`) |
+| Départ | `Date départ`, `Date fin`, `Fin`, `Au` | **obligatoire**, même format, après l'arrivée |
+| Heure d'arrivée / de départ | `Heure arrivée`, `Heure début` / `Heure départ`, `Heure fin` | facultatives (`15:30`, `15h30`, `1530`) ; sinon heure de la date, sinon **16h00 / 10h00** |
+| Tarif TTC | `Tarif`, `Tarif TTC`, `Prix`, `Montant`, `Total TTC` | **obligatoire** : `450`, `450,50`, `1 250,00 €`, `1.250,00` |
+| Adultes, Enfants, Bébés | `Adultes`, `Nb adultes`, `Nombre d'enfants`, `Bébés` | facultatifs, vides = 0 |
+| Airbnb | `Airbnb`, `Origine`, `Plateforme`, `Source` | `Oui`, `O`, `1`, `X`, `Vrai` ou tout texte contenant « Airbnb » ; sinon non |
+| N° de réservation | `N° réservation`, `Réservation`, `Code réservation`, `Référence` | facultatif |
+
+Une date seule avec l'heure `00:00` (fréquent dans les exports Excel) est traitée comme une date sans heure.
+**Doublons** : une location est ignorée si son n° de réservation existe déjà, ou si le même client a déjà une location
+aux mêmes jours d'arrivée et de départ. Un client introuvable (non importé, ou ligne client rejetée) fait rejeter la location.
+
 ## Base de données
 
 Un seul fichier SQLite contient les clients et les locations.
@@ -99,7 +160,8 @@ Un seul fichier SQLite contient les clients et les locations.
 
 Un client qui a des locations ne peut pas être supprimé. Les dates sont enregistrées en heure locale
 au format `AAAA-MM-JJ HH:MM`. La version du schéma est notée dans `PRAGMA user_version`, ce qui permettra
-de faire évoluer la base sans perdre les données (version 2 : ajout de la table `reglages`).
+de faire évoluer la base sans perdre les données (version 2 : ajout de la table `reglages` ;
+version 3 : table `clients_origine`, anciens numéros de client retenus par l'import CSV).
 Une fois la base mise à jour par une version récente du programme, les anciennes versions refusent de l'ouvrir :
 mettez à jour le programme sur tous les postes.
 
