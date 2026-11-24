@@ -74,4 +74,58 @@ public sealed class ParametresTests : IDisposable
         var vm = new ParametresViewModel(_magasin) { CheminBase = " " };
         Assert.False(vm.EnregistrerCommand.CanExecute(null));
     }
+
+    [Fact]
+    public void Le_theme_est_clair_par_defaut()
+    {
+        Assert.Equal(ThemeInterface.Clair, _magasin.Charger().Theme);
+        Assert.True(new ParametresViewModel(_magasin).ThemeClair);
+    }
+
+    [Fact]
+    public void Le_theme_sombre_est_memorise_sur_le_poste()
+    {
+        var vm = new ParametresViewModel(_magasin) { CheminBase = Path.Combine(_dossier, "gestionlocative.db") };
+        vm.ThemeSombre = true;
+        vm.EnregistrerCommand.Execute(null);
+
+        Assert.Equal(ThemeInterface.Sombre, _magasin.Charger().Theme);
+        Assert.Contains("\"Sombre\"", File.ReadAllText(_magasin.CheminFichier));
+        var rouvert = new ParametresViewModel(_magasin);
+        Assert.True(rouvert.ThemeSombre);
+        Assert.Equal(ThemeInterface.Sombre, rouvert.ThemeInitial);
+    }
+
+    [Fact]
+    public void Changer_de_theme_sans_enregistrer_ne_modifie_pas_le_poste()
+    {
+        var vm = new ParametresViewModel(_magasin);
+        vm.ThemeSombre = true;
+
+        Assert.Equal(ThemeInterface.Sombre, vm.Theme);
+        Assert.Equal(ThemeInterface.Clair, vm.ThemeInitial);
+        Assert.Equal(ThemeInterface.Clair, _magasin.Charger().Theme);
+    }
+
+    [Fact]
+    public void Un_theme_inconnu_redonne_le_clair_sans_perdre_le_chemin()
+    {
+        Directory.CreateDirectory(_dossier);
+        File.WriteAllText(_magasin.CheminFichier, """{ "CheminBase": "\\\\SERVEUR\\base.db", "Theme": "Fluo" }""");
+
+        var parametres = _magasin.Charger();
+        Assert.Equal(ThemeInterface.Clair, parametres.Theme);
+        Assert.Equal(@"\\SERVEUR\base.db", parametres.CheminBase);
+    }
+
+    [Fact]
+    public void Un_ancien_fichier_sans_theme_reste_lisible()
+    {
+        Directory.CreateDirectory(_dossier);
+        File.WriteAllText(_magasin.CheminFichier, """{ "CheminBase": "C:\\Donnees\\base.db" }""");
+
+        var parametres = _magasin.Charger();
+        Assert.Equal(ThemeInterface.Clair, parametres.Theme);
+        Assert.Equal(@"C:\Donnees\base.db", parametres.CheminBase);
+    }
 }

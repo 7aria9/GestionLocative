@@ -6,7 +6,7 @@ using GestionLocative.Core.Parametres;
 
 namespace GestionLocative.Core.ViewModels;
 
-/// <summary>Fenêtre « Paramètres » : emplacement de la base de données, taux de TVA et téléphones du prestataire.</summary>
+/// <summary>Fenêtre « Paramètres » : emplacement de la base de données, thème, taux de TVA et téléphones du prestataire.</summary>
 public sealed partial class ParametresViewModel : ObservableObject
 {
     private static readonly CultureInfo Francais = CultureInfo.GetCultureInfo("fr-FR");
@@ -20,7 +20,9 @@ public sealed partial class ParametresViewModel : ObservableObject
     public ParametresViewModel(MagasinParametres magasin, BaseDeDonnees? baseActuelle = null)
     {
         _magasin = magasin;
-        _cheminBase = magasin.Charger().CheminBase;
+        var parametresPoste = magasin.Charger();
+        _cheminBase = parametresPoste.CheminBase;
+        ThemeInitial = _theme = parametresPoste.Theme;
 
         var taux = ReglagesRepository.TauxTvaParDefaut;
         string? principal = null, secondaire = null;
@@ -38,6 +40,28 @@ public sealed partial class ParametresViewModel : ObservableObject
         _tauxTvaInitial = _tauxTva = taux.ToString("0.##", Francais);
         _telephonePrincipalInitial = _telephonePrestatairePrincipal = MiseEnForme.TelephoneAffiche(principal);
         _telephoneSecondaireInitial = _telephonePrestataireSecondaire = MiseEnForme.TelephoneAffiche(secondaire);
+    }
+
+    /// <summary>Thème enregistré sur ce poste à l'ouverture de la fenêtre (pour revenir en arrière si on annule).</summary>
+    public ThemeInterface ThemeInitial { get; }
+
+    /// <summary>Thème choisi, propre à ce poste. Appliqué tout de suite pour aperçu, enregistré avec « Enregistrer ».</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ThemeClair), nameof(ThemeSombre))]
+    private ThemeInterface _theme;
+
+    /// <summary>Pour le bouton radio « Clair ».</summary>
+    public bool ThemeClair
+    {
+        get => Theme == ThemeInterface.Clair;
+        set { if (value) Theme = ThemeInterface.Clair; }
+    }
+
+    /// <summary>Pour le bouton radio « Sombre ».</summary>
+    public bool ThemeSombre
+    {
+        get => Theme == ThemeInterface.Sombre;
+        set { if (value) Theme = ThemeInterface.Sombre; }
     }
 
     /// <summary>Téléphone principal du prestataire (facultatif), commun à tous les postes.</summary>
@@ -124,6 +148,7 @@ public sealed partial class ParametresViewModel : ObservableObject
 
         var parametres = _magasin.Charger();
         parametres.CheminBase = baseDeDonnees.CheminFichier;
+        parametres.Theme = Theme;
         _magasin.Enregistrer(parametres);
         Enregistre?.Invoke(this, baseDeDonnees);
     }
