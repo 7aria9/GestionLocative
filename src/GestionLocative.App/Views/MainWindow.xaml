@@ -41,6 +41,12 @@
                         ToolTip="Mois suivant (Page suiv.)"
                         AutomationProperties.Name="Mois suivant"
                         Command="{Binding MoisSuivantCommand}" />
+                <Button Style="{StaticResource BoutonNavigation}"
+                        Margin="16,0,0,0"
+                        Content="&#xE713;"
+                        ToolTip="Paramètres (emplacement de la base de données)"
+                        AutomationProperties.Name="Paramètres"
+                        Click="Parametres_Click" />
             </StackPanel>
             <TextBlock Text="{Binding Titre}"
                        FontSize="28" FontWeight="SemiBold"

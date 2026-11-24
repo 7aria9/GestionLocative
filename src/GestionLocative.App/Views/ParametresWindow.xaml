@@ -1,0 +1,60 @@
+<Window x:Class="GestionLocative.App.Views.ParametresWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:GestionLocative.Core.ViewModels;assembly=GestionLocative.Core"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:ParametresViewModel}"
+        Title="Paramètres"
+        Width="640" SizeToContent="Height"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        Background="{StaticResource FondFenetre}"
+        FontFamily="Segoe UI">
+
+    <StackPanel Margin="24">
+        <TextBlock Text="Base de données" FontSize="20" FontWeight="SemiBold"
+                   Foreground="{StaticResource Texte}" Margin="0,0,0,6" />
+        <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{StaticResource TexteSecondaire}" Margin="0,0,0,14">
+            Emplacement du fichier qui contient les clients et les locations. Pour partager les données entre
+            plusieurs ordinateurs du réseau local, placez-le dans un dossier partagé, par exemple
+            <Run FontFamily="Consolas">\\SERVEUR\Partage\gestionlocative.db</Run>,
+            et indiquez le même chemin sur chaque poste. Si le fichier n'existe pas encore, il est créé.
+        </TextBlock>
+
+        <DockPanel LastChildFill="True">
+            <Button DockPanel.Dock="Right" Style="{StaticResource Bouton}"
+                    Content="Parcourir…" Click="Parcourir_Click" />
+            <TextBox x:Name="Chemin"
+                     Text="{Binding CheminBase, UpdateSourceTrigger=PropertyChanged}"
+                     Height="34" VerticalContentAlignment="Center" Padding="6,0"
+                     FontSize="13" AutomationProperties.Name="Chemin de la base de données" />
+        </DockPanel>
+
+        <TextBlock x:Name="Message" Text="{Binding Message}" TextWrapping="Wrap"
+                   FontSize="13" Margin="0,10,0,0" Foreground="{StaticResource Succes}">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Message}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+        <DockPanel Margin="0,22,0,0" LastChildFill="False">
+            <Button DockPanel.Dock="Left" Style="{StaticResource Bouton}" Margin="0"
+                    Content="Emplacement par défaut" Command="{Binding RemettreParDefautCommand}" />
+            <Button DockPanel.Dock="Right" Style="{StaticResource BoutonPrincipal}"
+                    Content="Enregistrer" IsDefault="True" Command="{Binding EnregistrerCommand}" />
+            <Button DockPanel.Dock="Right" Style="{StaticResource Bouton}"
+                    Content="Annuler" IsCancel="True" />
+            <Button DockPanel.Dock="Right" Style="{StaticResource Bouton}"
+                    Content="Tester" Command="{Binding TesterCommand}" />
+        </DockPanel>
+    </StackPanel>
+</Window>
