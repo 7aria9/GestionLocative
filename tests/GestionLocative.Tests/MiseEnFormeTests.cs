@@ -19,6 +19,16 @@ public class MiseEnFormeTests
     public void Prenom_avec_majuscule_initiale(string saisie, string attendu) => Assert.Equal(attendu, MiseEnForme.Prenom(saisie));
 
     [Theory]
+    [InlineData("j", "J")]
+    [InlineData("jEAN", "Jean")]
+    [InlineData("jean-p", "Jean-P")]
+    [InlineData("marie ", "Marie ")]
+    [InlineData("marie c", "Marie C")]
+    [InlineData("", "")]
+    public void Prenom_pendant_la_saisie_garde_la_longueur(string saisie, string attendu) =>
+        Assert.Equal(attendu, MiseEnForme.PrenomSaisie(saisie));
+
+    [Theory]
     [InlineData("06 12 34 56 78", "+33612345678")]
     [InlineData("06.12.34.56.78", "+33612345678")]
     [InlineData("0612345678", "+33612345678")]

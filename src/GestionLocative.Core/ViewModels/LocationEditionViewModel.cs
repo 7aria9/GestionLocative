@@ -7,7 +7,7 @@ using GestionLocative.Core.Donnees;
 namespace GestionLocative.Core.ViewModels;
 
 /// <summary>
-/// Fenêtre « Nouvelle location » : dates (arrivée 16h00 / départ 10h00 par défaut), client obligatoire
+/// Fenêtre « Nouvelle location » / « Modifier la location » : dates (arrivée 16h00 / départ 10h00 par défaut), client obligatoire
 /// choisi par recherche (ou créé depuis la fenêtre), tarif TTC, voyageurs, Airbnb et n° de réservation.
 /// </summary>
 public sealed partial class LocationEditionViewModel : ObservableObject
@@ -18,6 +18,36 @@ public sealed partial class LocationEditionViewModel : ObservableObject
     private readonly LocationRepository _locations;
     private readonly decimal _tauxTva;
 
+    /// <summary>Numéro de la location modifiée (0 pour une nouvelle location).</summary>
+    private readonly long _idLocation;
+
+    /// <summary>Ouvre la fenêtre pour modifier (ou supprimer) une location existante.</summary>
+    public LocationEditionViewModel(BaseDeDonnees baseDeDonnees, Location existante)
+        : this(baseDeDonnees, DateOnly.FromDateTime(existante.DateDebut))
+    {
+        _idLocation = existante.IdLocation;
+        _dateDebut = existante.DateDebut.Date;
+        _dateFin = existante.DateFin.Date;
+        _heureDebut = existante.DateDebut.ToString("HH\\:mm", CultureInfo.InvariantCulture);
+        _heureFin = existante.DateFin.ToString("HH\\:mm", CultureInfo.InvariantCulture);
+        _tarifTtc = existante.TarifTtc.ToString("0.00", Francais);
+        _nombreAdultes = existante.NombreAdultes.ToString(CultureInfo.InvariantCulture);
+        _nombreEnfants = existante.NombreEnfants.ToString(CultureInfo.InvariantCulture);
+        _nombreBebes = existante.NombreBebes.ToString(CultureInfo.InvariantCulture);
+        _airbnb = existante.Airbnb;
+        _numeroReservation = existante.NumeroReservation ?? "";
+
+        try
+        {
+            if (_clients.ObtenirParId(existante.IdClient) is { } client) SelectionnerClient(client);
+        }
+        catch (Exception ex)
+        {
+            Erreurs = $"Impossible de lire le client : {ex.Message}";
+        }
+    }
+
+    /// <summary>Ouvre la fenêtre pour créer une location qui commence le jour <paramref name="arrivee"/>.</summary>
     public LocationEditionViewModel(BaseDeDonnees baseDeDonnees, DateOnly arrivee)
     {
         _clients = new ClientRepository(baseDeDonnees);
@@ -99,6 +129,14 @@ public sealed partial class LocationEditionViewModel : ObservableObject
         }
     }
 
+    /// <summary>Vrai quand la fenêtre modifie une location existante (le bouton « Supprimer » est alors proposé).</summary>
+    public bool EstModification => _idLocation > 0;
+
+    public string Titre => EstModification ? "Modifier la location" : "Nouvelle location";
+
+    /// <summary>Déclenché quand la location a été supprimée de la base.</summary>
+    public event EventHandler? Supprimee;
+
     /// <summary>Location enregistrée (renseignée après un enregistrement réussi).</summary>
     public Location? LocationEnregistree { get; private set; }
 
@@ -159,6 +197,7 @@ public sealed partial class LocationEditionViewModel : ObservableObject
         var erreurs = new List<string>();
         var location = new Location
         {
+            IdLocation = _idLocation,
             IdClient = ClientSelectionne?.IdClient ?? 0,
             Airbnb = Airbnb,
             NumeroReservation = NumeroReservation,
@@ -193,6 +232,7 @@ public sealed partial class LocationEditionViewModel : ObservableObject
         {
             var chevauchements = _locations
                 .ListerEntre(DateOnly.FromDateTime(location.DateDebut), DateOnly.FromDateTime(location.DateFin))
+                .Where(l => l.IdLocation != location.IdLocation)
                 .Where(l => l.DateDebut < location.DateFin && l.DateFin > location.DateDebut)
                 .ToList();
             if (chevauchements.Count > 0 && Confirmer is not null)
@@ -205,7 +245,8 @@ public sealed partial class LocationEditionViewModel : ObservableObject
                     return;
             }
 
-            _locations.Ajouter(location);
+            if (EstModification) _locations.Modifier(location);
+            else _locations.Ajouter(location);
         }
         catch (DonneesInvalidesException ex)
         {
@@ -221,6 +262,25 @@ public sealed partial class LocationEditionViewModel : ObservableObject
         Erreurs = null;
         LocationEnregistree = location;
         Enregistree?.Invoke(this, location);
+    }
+
+    [RelayCommand(CanExecute = nameof(EstModification))]
+    private void Supprimer()
+    {
+        var resume = $"du {DateDebut?.ToString("dd/MM/yyyy", Francais)} au {DateFin?.ToString("dd/MM/yyyy", Francais)}"
+            + (ClientSelectionne is null ? "" : $" ({ClientSelectionne.NomComplet})");
+        if (Confirmer is not null && !Confirmer($"Supprimer définitivement la location {resume} ?"))
+            return;
+        try
+        {
+            _locations.Supprimer(_idLocation);
+        }
+        catch (Exception ex)
+        {
+            Erreurs = $"Impossible de supprimer la location : {ex.Message}";
+            return;
+        }
+        Supprimee?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>Accepte « 16:00 », « 16h00 », « 16h », « 16 », « 9:30 ».</summary>

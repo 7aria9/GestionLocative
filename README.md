@@ -28,6 +28,17 @@ Chaque vignette affiche les locations du jour (`LocationsCalendarSource`), chacu
 Le jour d'arrivée (et chaque lundi, en début de ligne) montre aussi le nombre total de personnes, l'email,
 le prix HT et le prix TTC. Le survol d'une location affiche tout le détail (dates, voyageurs, Airbnb, n° de réservation).
 
+- **Double-clic sur une location** : fenêtre de modification, avec un bouton « Supprimer la location… » (confirmation demandée).
+- **Clic droit sur une location** : copie dans le presse-papiers de l'email, du téléphone, de la plaque d'immatriculation,
+  du nom et prénom du client, ou du **message prestataire** :
+
+  ```
+  du 05/12/2026 au 08/12/2026
+  DUPONT Jean
+  2 adultes, 1 enfant, 0 bébé
+  +33 6 12 34 56 78
+  ```
+
 Le prix HT est calculé à partir du tarif TTC avec le taux de TVA réglé dans **Paramètres** (10 % par défaut).
 
 ## Créer une location

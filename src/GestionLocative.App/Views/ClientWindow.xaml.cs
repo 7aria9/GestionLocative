@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using GestionLocative.Core.Donnees;
 using GestionLocative.Core.ViewModels;
 
@@ -21,4 +22,15 @@ public partial class ClientWindow : Window
 
     /// <summary>Client créé (renseigné si l'utilisateur a enregistré).</summary>
     public Client? Client { get; private set; }
+
+    /// <summary>Majuscule en début de prénom (et après un tiret ou un espace) pendant la saisie.</summary>
+    private void Prenom_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (sender is not TextBox champ) return;
+        var corrige = MiseEnForme.PrenomSaisie(champ.Text);
+        if (corrige == champ.Text) return;
+        var curseur = champ.CaretIndex;
+        champ.Text = corrige;
+        champ.CaretIndex = curseur;
+    }
 }
