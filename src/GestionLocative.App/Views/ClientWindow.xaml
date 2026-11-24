@@ -17,7 +17,7 @@
 
     <StackPanel Margin="24">
         <TextBlock Text="Nouveau client" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Texte}" />
-        <TextBlock Text="Les champs marqués * sont obligatoires. L'email ne peut pas être utilisé par deux clients."
+        <TextBlock Text="Les champs marqués * sont obligatoires. Le nom est mis en majuscules, le prénom avec une majuscule initiale et le téléphone au format international (06 12 34 56 78 devient +33612345678). L'email ne peut pas être utilisé par deux clients."
                    TextWrapping="Wrap" FontSize="12" Foreground="{StaticResource TexteSecondaire}" Margin="0,4,0,0" />
 
         <Grid>
@@ -37,6 +37,7 @@
             <StackPanel Grid.Row="0" Grid.Column="0">
                 <TextBlock Style="{StaticResource Libelle}" Text="Nom *" />
                 <TextBox x:Name="ChampNom" Style="{StaticResource Champ}" AutomationProperties.Name="Nom"
+                         CharacterCasing="Upper"
                          Text="{Binding Nom, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
             <StackPanel Grid.Row="0" Grid.Column="2">
@@ -46,7 +47,7 @@
             </StackPanel>
 
             <StackPanel Grid.Row="1" Grid.Column="0">
-                <TextBlock Style="{StaticResource Libelle}" Text="Téléphone *" />
+                <TextBlock Style="{StaticResource Libelle}" Text="Téléphone * (ex. 06 12 34 56 78 ou +44…)" />
                 <TextBox Style="{StaticResource Champ}" AutomationProperties.Name="Téléphone"
                          Text="{Binding Telephone, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>

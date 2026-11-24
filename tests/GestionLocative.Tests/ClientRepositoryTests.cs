@@ -16,8 +16,8 @@ public sealed class ClientRepositoryTests : IDisposable
     {
         var client = new Client
         {
-            Nom = " Martin ", Prenom = "Claire", Adresse = "3 rue des Lilas", CodePostal = "44000",
-            Ville = "Nantes", Telephone = "0612345678", Email = "claire@example.com", PlaqueImmatriculation = "ab-123-cd",
+            Nom = " Martin ", Prenom = "cLAIRE", Adresse = "3 rue des Lilas", CodePostal = "44000",
+            Ville = "Nantes", Telephone = "06.12.34.56.78", Email = " Claire@Example.com ", PlaqueImmatriculation = "ab-123-cd",
         };
         _clients.Ajouter(client);
         var second = BaseTemporaire.NouveauClient();
@@ -27,12 +27,12 @@ public sealed class ClientRepositoryTests : IDisposable
         Assert.True(second.IdClient > client.IdClient);
 
         var relu = _clients.ObtenirParId(client.IdClient)!;
-        Assert.Equal("Martin", relu.Nom);
+        Assert.Equal("MARTIN", relu.Nom);
         Assert.Equal("Claire", relu.Prenom);
         Assert.Equal("3 rue des Lilas", relu.Adresse);
         Assert.Equal("44000", relu.CodePostal);
         Assert.Equal("Nantes", relu.Ville);
-        Assert.Equal("0612345678", relu.Telephone);
+        Assert.Equal("+33612345678", relu.Telephone);
         Assert.Equal("claire@example.com", relu.Email);
         Assert.Equal("AB-123-CD", relu.PlaqueImmatriculation);
     }
@@ -50,11 +50,13 @@ public sealed class ClientRepositoryTests : IDisposable
     }
 
     [Theory]
-    [InlineData("", "Jean", "0612", "a@b.fr", "Le nom est obligatoire.")]
-    [InlineData("Dupont", " ", "0612", "a@b.fr", "Le prénom est obligatoire.")]
+    [InlineData("", "Jean", "0612345678", "a@b.fr", "Le nom est obligatoire.")]
+    [InlineData("Dupont", " ", "0612345678", "a@b.fr", "Le prénom est obligatoire.")]
     [InlineData("Dupont", "Jean", "", "a@b.fr", "Le téléphone est obligatoire.")]
-    [InlineData("Dupont", "Jean", "0612", "", "L'email est obligatoire.")]
-    [InlineData("Dupont", "Jean", "0612", "pas-un-email", "L'email n'est pas valide.")]
+    [InlineData("Dupont", "Jean", "0612345678", "", "L'email est obligatoire.")]
+    [InlineData("Dupont", "Jean", "0612", "a@b.fr", "Le téléphone n'est pas valide (ex. 06 12 34 56 78, ou +44 20 7946 0958 pour l'étranger).")]
+    [InlineData("Dupont", "Jean", "0612345678", "jean@exemple", "L'email n'est pas valide (ex. jean.dupont@exemple.fr).")]
+    [InlineData("Dupont", "Jean", "0612345678", "pas-un-email", "L'email n'est pas valide (ex. jean.dupont@exemple.fr).")]
     public void Les_champs_obligatoires_sont_verifies(string nom, string prenom, string telephone, string email, string erreur)
     {
         var client = new Client { Nom = nom, Prenom = prenom, Telephone = telephone, Email = email };
@@ -103,13 +105,15 @@ public sealed class ClientRepositoryTests : IDisposable
     [Fact]
     public void Lister_trie_par_nom_et_filtre_la_recherche()
     {
-        _clients.Ajouter(new Client { Nom = "Zola", Prenom = "Émile", Telephone = "1", Email = "z@x.fr" });
-        _clients.Ajouter(new Client { Nom = "andré", Prenom = "Paul", Telephone = "2", Email = "a@x.fr", PlaqueImmatriculation = "GH-456-IJ" });
-        _clients.Ajouter(new Client { Nom = "Martin", Prenom = "Léa", Telephone = "3", Email = "m@x.fr" });
+        _clients.Ajouter(new Client { Nom = "Zola", Prenom = "Émile", Telephone = "0611111111", Email = "z@x.fr" });
+        _clients.Ajouter(new Client { Nom = "andré", Prenom = "Paul", Telephone = "0622222222", Email = "a@x.fr", PlaqueImmatriculation = "GH-456-IJ" });
+        _clients.Ajouter(new Client { Nom = "Martin", Prenom = "Léa", Telephone = "+44 20 7946 0958", Email = "m@x.fr" });
 
-        Assert.Equal(["andré", "Martin", "Zola"], _clients.Lister().Select(c => c.Nom));
-        Assert.Equal(["andré"], _clients.Lister("gh-456").Select(c => c.Nom));
-        Assert.Equal(["Martin"], _clients.Lister("mar").Select(c => c.Nom));
+        Assert.Equal(["ANDRÉ", "MARTIN", "ZOLA"], _clients.Lister().Select(c => c.Nom));
+        Assert.Equal(["ANDRÉ"], _clients.Lister("gh-456").Select(c => c.Nom));
+        Assert.Equal(["MARTIN"], _clients.Lister("mar").Select(c => c.Nom));
+        Assert.Equal(["ANDRÉ"], _clients.Lister("06 22 22").Select(c => c.Nom));
+        Assert.Equal(["MARTIN"], _clients.Lister("020 7946").Select(c => c.Nom));
         Assert.Empty(_clients.Lister("100%"));
     }
 
