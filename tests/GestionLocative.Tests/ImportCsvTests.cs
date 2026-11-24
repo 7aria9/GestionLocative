@@ -333,6 +333,38 @@ public sealed class ImportCsvTests : IDisposable
     }
 
     [Fact]
+    public void Exports_reels_de_David()
+    {
+        var clients = ImportCsv.Importer(_temp.Base, TypeImport.Clients, Csv("""
+            IDclients;nom;prenom;adresse;cp;ville;telephone;email;immatriculation
+            8;DEMAY;Virginie;36 impasse lulli;79230;AIFFRES;0631968791;virginiedemay14@gmail.com;GS-838-QA
+            9;ROUSSEL;Maria-rosa;16 rue du désert;27930;SACQUENVILLE;0686871599;rosita4@orange.fr;ER-275-AL
+            """));
+        Assert.Equal(2, clients.NombreAImporter);
+        Assert.Empty(clients.Avertissements);
+        Assert.Empty(clients.ColonnesIgnorees);
+        var demay = new ClientRepository(_temp.Base).ObtenirParEmail("virginiedemay14@gmail.com")!;
+        Assert.Equal(("DEMAY", "Virginie", "+33631968791", "79230", "AIFFRES", "GS-838-QA"),
+            (demay.Nom, demay.Prenom, demay.Telephone, demay.CodePostal, demay.Ville, demay.PlaqueImmatriculation));
+        Assert.Equal("Maria-Rosa", new ClientRepository(_temp.Base).ObtenirParEmail("rosita4@orange.fr")!.Prenom);
+
+        var locations = ImportCsv.Importer(_temp.Base, TypeImport.Locations, Csv("""
+            id_resa_siblu;IDclients;;date_debut;date_fin;prix;nombre_adulte;nombre_enfant;;airbnb_booking
+            A307752;8;;23/08/2025 16:00:00;30/08/2025 10:00:00;420,00;1;5;;0
+            """));
+        Assert.Equal(1, locations.NombreAImporter);
+        Assert.Empty(locations.Avertissements);
+        Assert.Empty(locations.ColonnesIgnorees);
+
+        var location = new LocationRepository(_temp.Base).ListerParClient(demay.IdClient).Single();
+        Assert.Equal(new DateTime(2025, 8, 23, 16, 0, 0), location.DateDebut);
+        Assert.Equal(new DateTime(2025, 8, 30, 10, 0, 0), location.DateFin);
+        Assert.Equal(420m, location.TarifTtc);
+        Assert.Equal((1, 5, 0, false, "A307752"),
+            (location.NombreAdultes, location.NombreEnfants, location.NombreBebes, location.Airbnb, location.NumeroReservation));
+    }
+
+    [Fact]
     public void Export_WinDev_IDClient_rattache_les_locations()
     {
         ImportCsv.Importer(_temp.Base, TypeImport.Clients, Csv("""

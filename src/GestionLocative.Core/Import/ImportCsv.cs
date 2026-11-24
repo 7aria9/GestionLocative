@@ -258,8 +258,10 @@ internal static class ImportCsvLocations
         ["airbnb", "origine", "source", "plateforme", "canal", "provenance", "reserveparairbnb"], ["airbnb"]);
     public static readonly Champ NumeroReservation = new("N° de réservation",
         ["numeroreservation", "numerodereservation", "nreservation", "noreservation", "numreservation", "reservation",
-         "refreservation", "referencereservation", "codereservation", "confirmationcode", "codeconfirmation", "reference", "ref"],
-        ["numeroreservation", "numerodereservation", "nreservation", "noreservation", "numreservation", "codereservation"]);
+         "refreservation", "referencereservation", "codereservation", "confirmationcode", "codeconfirmation", "reference", "ref",
+         "resa", "idresa", "numresa", "numeroresa", "nresa", "noresa", "refresa", "coderesa", "idreservation"],
+        ["numeroreservation", "numerodereservation", "nreservation", "noreservation", "numreservation", "codereservation",
+         "idreservation", "idresa", "numresa", "numeroresa", "nresa", "noresa", "refresa", "coderesa", "resa"]);
 
     // Heures avant dates : « Heure d'arrivée » ne doit pas être prise pour la date.
     public static readonly Champ[] Champs =
