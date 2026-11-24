@@ -17,7 +17,7 @@ namespace GestionLocative.Core.Donnees;
 public sealed class BaseDeDonnees
 {
     /// <summary>Version du schéma créé par ce programme (stockée dans <c>PRAGMA user_version</c>).</summary>
-    public const int VersionSchema = 2;
+    public const int VersionSchema = 3;
 
     private const int AttenteVerrouSecondes = 10;
 
@@ -83,6 +83,14 @@ public sealed class BaseDeDonnees
             using var transaction = connexion.BeginTransaction();
             Executer(connexion, SchemaV2, transaction);
             Executer(connexion, "PRAGMA user_version = 2;", transaction);
+            transaction.Commit();
+        }
+
+        if (version < 3)
+        {
+            using var transaction = connexion.BeginTransaction();
+            Executer(connexion, SchemaV3, transaction);
+            Executer(connexion, "PRAGMA user_version = 3;", transaction);
             transaction.Commit();
         }
     }
@@ -153,5 +161,18 @@ public sealed class BaseDeDonnees
         );
 
         INSERT INTO reglages (cle, valeur) VALUES ('taux_tva', '10');
+        """;
+
+    /// <summary>
+    /// V3 : numéros de client de l'ancien programme (import CSV), pour rattacher ensuite les locations importées
+    /// à leur client. Plusieurs anciens numéros peuvent désigner le même client (doublons fusionnés par email).
+    /// </summary>
+    private const string SchemaV3 = """
+        CREATE TABLE clients_origine (
+            id_origine  TEXT PRIMARY KEY COLLATE NOCASE,
+            idclient    INTEGER NOT NULL REFERENCES clients (idclient) ON DELETE CASCADE
+        );
+
+        CREATE INDEX ix_clients_origine_client ON clients_origine (idclient);
         """;
 }

@@ -1,0 +1,6 @@
+N° client;Nom;Prénom;Adresse;Code postal;Ville;Téléphone;E-mail;Immatriculation
+1;dupont;jean-pierre;12 rue des Lilas;75011;Paris;06 12 34 56 78;Jean-Pierre.Dupont@exemple.fr;ab-123-cd
+2;Martin;élodie;"3, place de l'Église";69002;Lyon;0033 6 98 76 54 32;elodie.martin@exemple.fr;
+3;LEFÈVRE;françois;;;;0692 12 34 56;f.lefevre@exemple.re;
+4;Smith;John;10 Downing Street;SW1A 2AA;London;+44 20 7946 0958;john.smith@example.co.uk;
+5;Dupont;Jean-Pierre;;;;06.12.34.56.78;jean-pierre.dupont@exemple.fr;

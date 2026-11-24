@@ -14,7 +14,14 @@ public sealed class ClientRepository(BaseDeDonnees baseDeDonnees)
     {
         Verifier(client);
         using var connexion = baseDeDonnees.Ouvrir();
+        Inserer(connexion, null, client);
+    }
+
+    /// <summary>INSERT d'un client déjà normalisé et validé, dans une connexion (et transaction) existante.</summary>
+    internal static void Inserer(SqliteConnection connexion, SqliteTransaction? transaction, Client client)
+    {
         using var commande = connexion.CreateCommand();
+        commande.Transaction = transaction;
         commande.CommandText = """
             INSERT INTO clients (nom, prenom, adresse, code_postal, ville, telephone, email, plaque_immatriculation)
             VALUES ($nom, $prenom, $adresse, $code_postal, $ville, $telephone, $email, $plaque)

@@ -45,6 +45,13 @@ public partial class MainWindow : Window
         if (fenetre.ModificationsFaites) _vm.Actualiser();
     }
 
+    private void Importer_Click(object sender, RoutedEventArgs e)
+    {
+        var fenetre = new ImportWindow(App.Base) { Owner = this };
+        fenetre.ShowDialog();
+        if (fenetre.ImportFait) _vm.Actualiser();
+    }
+
     private void NouvelleLocation_Executed(object sender, ExecutedRoutedEventArgs e) =>
         NouvelleLocation(_vm.JourParDefaut());
 

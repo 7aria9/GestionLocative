@@ -1,0 +1,5 @@
+﻿N° réservation;N° client;Email client;Date arrivée;Date départ;Tarif TTC;Adultes;Enfants;Bébés;Airbnb
+R2025-001;1;;15/07/2025;22/07/2025;"1 250,00 €";2;2;0;Non
+HMABCD1234;2;;01/08/2025 15:00;05/08/2025 11:00;680,50;2;0;1;Oui
+R2025-003;;f.lefevre@exemple.re;20/12/2025;03/01/2026;1450;4;0;0;Non
+R2026-001;5;;14/02/2026;16/02/2026;320;2;;;

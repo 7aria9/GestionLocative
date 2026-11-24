@@ -53,6 +53,11 @@
                             Content="Récapitulatif"
                             ToolTip="Tableau des locations de l'année avec les totaux HT et TTC, et liste des présences par client (Ctrl+R)"
                             Command="{x:Static app:Commandes.Recapitulatif}" />
+                    <Button Style="{StaticResource Bouton}"
+                            Height="40" Margin="0,0,12,0"
+                            Content="Importer…"
+                            ToolTip="Importer des clients ou des locations depuis un fichier CSV (export de l'ancien programme, Excel…)"
+                            Click="Importer_Click" />
                     <Button Style="{StaticResource BoutonNavigation}"
                             Content="&#xE76B;"
                             ToolTip="Mois précédent (Page préc.)"
