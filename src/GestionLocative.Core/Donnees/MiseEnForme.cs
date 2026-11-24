@@ -43,6 +43,23 @@ public static class MiseEnForme
     }
 
     /// <summary>
+    /// Version « pendant la saisie » de <see cref="Prenom"/> : même longueur que le texte tapé (espaces conservés,
+    /// pour ne pas déplacer le curseur), majuscule en début de mot, minuscules ensuite.
+    /// </summary>
+    public static string PrenomSaisie(string? prenom)
+    {
+        var texte = prenom ?? "";
+        var resultat = new StringBuilder(texte.Length);
+        var debutDeMot = true;
+        foreach (var c in texte)
+        {
+            resultat.Append(debutDeMot ? char.ToUpper(c, Francais) : char.ToLower(c, Francais));
+            debutDeMot = c is ' ' or '-' or '\'' or '’';
+        }
+        return resultat.ToString();
+    }
+
+    /// <summary>
     /// Convertit un numéro au format international E.164 : « 06 12 34 56 78 » → « +33612345678 »,
     /// « 0044 20 7946 0958 » → « +442079460958 ». Retourne null si le numéro n'est pas reconnu.
     /// </summary>

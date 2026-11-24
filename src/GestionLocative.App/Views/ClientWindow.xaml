@@ -43,6 +43,7 @@
             <StackPanel Grid.Row="0" Grid.Column="2">
                 <TextBlock Style="{StaticResource Libelle}" Text="Prénom *" />
                 <TextBox Style="{StaticResource Champ}" AutomationProperties.Name="Prénom"
+                         TextChanged="Prenom_TextChanged"
                          Text="{Binding Prenom, UpdateSourceTrigger=PropertyChanged}" />
             </StackPanel>
 

@@ -7,7 +7,7 @@
         xmlns:donnees="clr-namespace:GestionLocative.Core.Donnees;assembly=GestionLocative.Core"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:LocationEditionViewModel}"
-        Title="Nouvelle location"
+        Title="{Binding Titre}"
         Width="900" SizeToContent="Height"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
@@ -17,7 +17,7 @@
         FocusManager.FocusedElement="{Binding ElementName=ChampRecherche}">
 
     <StackPanel Margin="24">
-        <TextBlock Text="Nouvelle location" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Texte}" />
+        <TextBlock Text="{Binding Titre}" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource Texte}" />
 
         <Grid>
             <Grid.ColumnDefinitions>
@@ -156,10 +156,26 @@
             <TextBlock Text="{Binding Erreurs}" TextWrapping="Wrap" FontSize="13" Foreground="{StaticResource Erreur}" />
         </Border>
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,22,0,0">
+        <DockPanel Margin="0,22,0,0" LastChildFill="False">
+            <!-- Suppression : seulement quand on modifie une location existante -->
+            <Button DockPanel.Dock="Left" Margin="0" Content="Supprimer la location…"
+                    Command="{Binding SupprimerCommand}">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource Bouton}">
+                        <Setter Property="Foreground" Value="{StaticResource Erreur}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding EstModification}" Value="False">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
             <Button Style="{StaticResource Bouton}" Content="Annuler" IsCancel="True" />
             <Button Style="{StaticResource BoutonPrincipal}" Content="Enregistrer la location" IsDefault="True"
                     Command="{Binding EnregistrerCommand}" />
-        </StackPanel>
+            </StackPanel>
+        </DockPanel>
     </StackPanel>
 </Window>

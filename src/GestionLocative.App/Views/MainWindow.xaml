@@ -114,7 +114,7 @@
                             BorderBrush="{StaticResource Bordure}"
                             BorderThickness="1"
                             Cursor="Hand"
-                            ToolTip="Double-cliquez pour créer une location à partir de ce jour"
+                            ToolTip="Double-cliquez pour créer une location à partir de ce jour (double-clic sur une location pour la modifier, clic droit pour copier ses informations)"
                             MouseLeftButtonDown="Vignette_MouseLeftButtonDown">
                         <DockPanel>
                             <!-- Numéro du jour -->
@@ -141,7 +141,13 @@
                                                     Background="{Binding IndexCouleur, Converter={StaticResource CouleurLocation}, ConverterParameter=Fond}"
                                                     BorderBrush="{Binding IndexCouleur, Converter={StaticResource CouleurLocation}, ConverterParameter=Lisere}"
                                                     ToolTip="{Binding Infobulle}"
-                                                    ToolTipService.ShowDuration="60000">
+                                                    ToolTipService.ShowDuration="60000"
+                                                    MouseLeftButtonDown="Location_MouseLeftButtonDown"
+                                                    ContextMenuOpening="Location_ContextMenuOpening">
+                                                <!-- Rempli à l'ouverture (clic droit) avec les données du client -->
+                                                <Border.ContextMenu>
+                                                    <ContextMenu />
+                                                </Border.ContextMenu>
                                                 <StackPanel TextElement.Foreground="{Binding IndexCouleur, Converter={StaticResource CouleurLocation}, ConverterParameter=Texte}">
                                                     <TextBlock Text="{Binding Libelle}" FontSize="11" FontWeight="SemiBold"
                                                                TextTrimming="CharacterEllipsis" />
