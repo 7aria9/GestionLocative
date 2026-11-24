@@ -302,6 +302,108 @@ public sealed class ImportCsvTests : IDisposable
         Assert.Contains("introuvable", rapport.Lignes.Single().Detail);
     }
 
+    [Theory]
+    [InlineData("42", "42")]
+    [InlineData("0042", "42")]
+    [InlineData(" 42 ", "42")]
+    [InlineData("42,00", "42")]
+    [InlineData("42.0", "42")]
+    [InlineData("1 042", "1042")]
+    [InlineData("1\u00A0042", "1042")]
+    [InlineData("0", "0")]
+    [InlineData("CL-42", "CL-42")]
+    [InlineData("42,5", "42,5")]
+    public void Numeros_client_d_origine_simplifies(string texte, string attendu) =>
+        Assert.Equal(attendu, ImportCsv.SimplifierOrigine(texte));
+
+    [Theory]
+    [InlineData("IDClient")]
+    [InlineData("IDCLIENT")]
+    [InlineData("id_client")]
+    [InlineData("ID Client")]
+    [InlineData("IDClient (auto)")]
+    [InlineData("Identifiant client")]
+    [InlineData("Numéro du client")]
+    [InlineData("N° client")]
+    [InlineData("Code client")]
+    public void Colonne_du_numero_client_reconnue(string entete)
+    {
+        Assert.True(CorrespondanceColonnes.Etablir([entete, "Nom"], ImportCsvClients.Champs).Contient(ImportCsvClients.IdOrigine));
+        Assert.True(CorrespondanceColonnes.Etablir([entete, "Arrivée"], ImportCsvLocations.Champs).Contient(ImportCsvLocations.IdClient));
+    }
+
+    [Fact]
+    public void Exports_reels_de_David()
+    {
+        var clients = ImportCsv.Importer(_temp.Base, TypeImport.Clients, Csv("""
+            IDclients;nom;prenom;adresse;cp;ville;telephone;email;immatriculation
+            8;DEMAY;Virginie;36 impasse lulli;79230;AIFFRES;0631968791;virginiedemay14@gmail.com;GS-838-QA
+            9;ROUSSEL;Maria-rosa;16 rue du désert;27930;SACQUENVILLE;0686871599;rosita4@orange.fr;ER-275-AL
+            """));
+        Assert.Equal(2, clients.NombreAImporter);
+        Assert.Empty(clients.Avertissements);
+        Assert.Empty(clients.ColonnesIgnorees);
+        var demay = new ClientRepository(_temp.Base).ObtenirParEmail("virginiedemay14@gmail.com")!;
+        Assert.Equal(("DEMAY", "Virginie", "+33631968791", "79230", "AIFFRES", "GS-838-QA"),
+            (demay.Nom, demay.Prenom, demay.Telephone, demay.CodePostal, demay.Ville, demay.PlaqueImmatriculation));
+        Assert.Equal("Maria-Rosa", new ClientRepository(_temp.Base).ObtenirParEmail("rosita4@orange.fr")!.Prenom);
+
+        var locations = ImportCsv.Importer(_temp.Base, TypeImport.Locations, Csv("""
+            id_resa_siblu;IDclients;;date_debut;date_fin;prix;nombre_adulte;nombre_enfant;;airbnb_booking
+            A307752;8;;23/08/2025 16:00:00;30/08/2025 10:00:00;420,00;1;5;;0
+            """));
+        Assert.Equal(1, locations.NombreAImporter);
+        Assert.Empty(locations.Avertissements);
+        Assert.Empty(locations.ColonnesIgnorees);
+
+        var location = new LocationRepository(_temp.Base).ListerParClient(demay.IdClient).Single();
+        Assert.Equal(new DateTime(2025, 8, 23, 16, 0, 0), location.DateDebut);
+        Assert.Equal(new DateTime(2025, 8, 30, 10, 0, 0), location.DateFin);
+        Assert.Equal(420m, location.TarifTtc);
+        Assert.Equal((1, 5, 0, false, "A307752"),
+            (location.NombreAdultes, location.NombreEnfants, location.NombreBebes, location.Airbnb, location.NumeroReservation));
+    }
+
+    [Fact]
+    public void Export_WinDev_IDClient_rattache_les_locations()
+    {
+        ImportCsv.Importer(_temp.Base, TypeImport.Clients, Csv("""
+            IDClient;Nom;Prenom;Telephone;Email
+            0001;DUPONT;Jean;0612345678;jean@exemple.fr
+            1 042;MARTIN;Paul;0698765432;paul@exemple.fr
+            """));
+
+        var rapport = ImportCsv.Importer(_temp.Base, TypeImport.Locations, Csv("""
+            IDLocation;IDClient;DateDebut;DateFin;Prix
+            1;1,00;2026-01-01;2026-01-03;100
+            2;1042;2026-02-01;2026-02-03;200
+            """));
+
+        Assert.Equal(2, rapport.NombreAImporter);
+        Assert.Empty(rapport.Avertissements);
+    }
+
+    [Fact]
+    public void Reimporter_les_clients_deja_presents_leur_donne_leur_ancien_numero()
+    {
+        // Clients importés une première fois sans colonne de n° client : avertissement.
+        var sansNumero = ImportCsv.Importer(_temp.Base, TypeImport.Clients, Csv("Nom;Prénom;Téléphone;Email\nDupont;Jean;0612345678;jean@exemple.fr"));
+        Assert.Contains("IDClient", Assert.Single(sansNumero.Avertissements));
+
+        const string locations = "IDClient;Arrivée;Départ;Tarif\n7;01/01/2026;03/01/2026;100";
+        var avant = ImportCsv.Analyser(_temp.Base, TypeImport.Locations, Csv(locations));
+        Assert.Contains("réimportez", Assert.Single(avant.Avertissements));
+        Assert.Contains("réimportez", avant.Lignes.Single().Detail);
+
+        // Réimport avec le n° : le client existant n'est pas recréé mais reçoit son numéro.
+        var reimport = ImportCsv.Importer(_temp.Base, TypeImport.Clients, Csv("IDClient;Nom;Prénom;Téléphone;Email\n7;Dupont;Jean;0612345678;JEAN@exemple.fr"));
+        Assert.Equal(1, reimport.NombreDejaPresentes);
+
+        var apres = ImportCsv.Importer(_temp.Base, TypeImport.Locations, Csv(locations));
+        Assert.Equal(1, apres.NombreAImporter);
+        Assert.Empty(apres.Avertissements);
+    }
+
     [Fact]
     public void Le_type_de_fichier_est_devine_d_apres_les_colonnes()
     {

@@ -108,6 +108,20 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
+                <!-- Avertissements (colonne n° client absente...) : l'import reste possible -->
+                <Border Margin="0,8,0,4" Padding="10,8" CornerRadius="8" BorderThickness="1"
+                        Background="{DynamicResource AccentClair}" BorderBrush="{DynamicResource Accent}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Avertissements}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="{Binding Avertissements}" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource Texte}" />
+                </Border>
                 <TextBlock Text="{Binding DescriptionFichier}" FontSize="12" Margin="0,4,0,0" Foreground="{DynamicResource TexteSecondaire}" />
                 <TextBlock Text="{Binding Colonnes}" FontSize="12" Margin="0,2,0,0" TextWrapping="Wrap" Foreground="{DynamicResource TexteSecondaire}" />
 

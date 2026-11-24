@@ -37,7 +37,8 @@ public static class ImportCsv
             : ImportCsvLocations.Traiter(connexion, transaction, tableau);
 
     internal static RapportImport Rapport(TypeImport type, TableauCsv tableau, CorrespondanceColonnes colonnes,
-        IReadOnlyList<Champ> champs, IReadOnlyList<Champ> obligatoires, string? alternative, List<LigneRapport> lignes, bool enregistre)
+        IReadOnlyList<Champ> champs, IReadOnlyList<Champ> obligatoires, string? alternative, List<LigneRapport> lignes, bool enregistre,
+        IReadOnlyList<string>? avertissements = null)
     {
         string? erreur = null;
         var manquants = obligatoires.Where(c => !colonnes.Contient(c)).Select(c => c.Libelle).ToList();
@@ -51,6 +52,7 @@ public static class ImportCsv
             ColonnesReconnues = colonnes.Description(champs).ToList(),
             ColonnesIgnorees = colonnes.Ignorees,
             ErreurFichier = erreur,
+            Avertissements = erreur is null ? avertissements ?? [] : [],
             Lignes = erreur is null ? lignes : [],
             Enregistre = enregistre && erreur is null,
         };
@@ -79,10 +81,16 @@ public static class ImportCsv
         return origines;
     }
 
-    /// <summary>Numéros comme « 0042 » et « 42 » désignent le même client (WinDev complète parfois avec des zéros).</summary>
+    /// <summary>
+    /// Numéros comme « 0042 », « 42 », « 42,00 » (Excel), « 42.0 » et « 1 042 » / « 1042 » désignent le même client :
+    /// espaces retirés, décimales nulles retirées, zéros de tête retirés. Un code non numérique (« CL-42 ») est gardé tel quel.
+    /// </summary>
     internal static string SimplifierOrigine(string id)
     {
-        var t = id.Trim();
+        var t = new string(id.Where(c => !char.IsWhiteSpace(c) && c is not ('\u00A0' or '\u202F')).ToArray());
+        var virgule = t.IndexOfAny([',', '.']);
+        if (virgule > 0 && t[..virgule].All(char.IsAsciiDigit) && t[(virgule + 1)..] is { Length: > 0 } decimales && decimales.All(c => c == '0'))
+            t = t[..virgule];
         if (t.Length > 1 && t.All(char.IsAsciiDigit)) t = t.TrimStart('0') is { Length: > 0 } sansZeros ? sansZeros : "0";
         return t;
     }
@@ -91,8 +99,7 @@ public static class ImportCsv
 internal static class ImportCsvClients
 {
     public static readonly Champ IdOrigine = new("N° client d'origine",
-        ["idclient", "numclient", "numeroclient", "nclient", "noclient", "codeclient", "clientid", "idorigine", "id",
-         "refclient", "referenceclient", "identifiant", "numero", "num"], []);
+        [.. Synonymes.IdClient, "idorigine", "id", "identifiant", "numero", "num", "cle", "code", "ref", "reference"], Synonymes.DebutsIdClient);
     public static readonly Champ Nom = new("Nom", ["nom", "nomclient", "name", "lastname", "nomdefamille", "nomfamille"], []);
     public static readonly Champ Prenom = new("Prénom", ["prenom", "prenomclient", "firstname", "prenoms"], ["prenom"]);
     public static readonly Champ Email = new("Email", Synonymes.Email, Synonymes.DebutsEmail);
@@ -184,7 +191,11 @@ internal static class ImportCsvClients
             vusDansLeFichier[client.Email] = (ligne.NumeroLigne, client.IdClient);
             lignes.Add(new LigneRapport(ligne.NumeroLigne, StatutLigne.AImporter, resume, ""));
         }
-        return ImportCsv.Rapport(TypeImport.Clients, tableau, colonnes, Champs, [Nom, Email], null, lignes, enregistrer);
+        var avertissements = new List<string>();
+        if (!colonnes.Contient(IdOrigine))
+            avertissements.Add("Aucune colonne de n° client n'a été reconnue : les locations ne pourront être rattachées à ces clients " +
+                               "que par leur email. Si le fichier contient le n° client de l'ancien programme, renommez sa colonne « IDClient ».");
+        return ImportCsv.Rapport(TypeImport.Clients, tableau, colonnes, Champs, [Nom, Email], null, lignes, enregistrer, avertissements);
     }
 
     /// <summary>Plusieurs colonnes d'adresse (« Adresse 1 », « Adresse 2 ») : mises bout à bout.</summary>
@@ -219,9 +230,7 @@ internal static class ImportCsvClients
 
 internal static class ImportCsvLocations
 {
-    public static readonly Champ IdClient = new("N° client d'origine",
-        ["idclient", "numclient", "numeroclient", "nclient", "noclient", "codeclient", "clientid", "refclient", "referenceclient"],
-        ["idclient", "numclient", "numeroclient", "codeclient"]);
+    public static readonly Champ IdClient = new("N° client d'origine", Synonymes.IdClient, Synonymes.DebutsIdClient);
     public static readonly Champ EmailClient = new("Email du client", Synonymes.Email, Synonymes.DebutsEmail);
     public static readonly Champ HeureDebut = new("Heure d'arrivée",
         ["heuredebut", "heurearrivee", "heuredarrivee", "heureentree"], ["heuredebut", "heurearrivee", "heuredarrivee"]);
@@ -249,8 +258,10 @@ internal static class ImportCsvLocations
         ["airbnb", "origine", "source", "plateforme", "canal", "provenance", "reserveparairbnb"], ["airbnb"]);
     public static readonly Champ NumeroReservation = new("N° de réservation",
         ["numeroreservation", "numerodereservation", "nreservation", "noreservation", "numreservation", "reservation",
-         "refreservation", "referencereservation", "codereservation", "confirmationcode", "codeconfirmation", "reference", "ref"],
-        ["numeroreservation", "numerodereservation", "nreservation", "noreservation", "numreservation", "codereservation"]);
+         "refreservation", "referencereservation", "codereservation", "confirmationcode", "codeconfirmation", "reference", "ref",
+         "resa", "idresa", "numresa", "numeroresa", "nresa", "noresa", "refresa", "coderesa", "idreservation"],
+        ["numeroreservation", "numerodereservation", "nreservation", "noreservation", "numreservation", "codereservation",
+         "idreservation", "idresa", "numresa", "numeroresa", "nresa", "noresa", "refresa", "coderesa", "resa"]);
 
     // Heures avant dates : « Heure d'arrivée » ne doit pas être prise pour la date.
     public static readonly Champ[] Champs =
@@ -279,6 +290,15 @@ internal static class ImportCsvLocations
                 nomsClients[lecteur.GetInt64(0)] = $"{lecteur.GetString(2)} {lecteur.GetString(3)}";
             }
         var origines = ImportCsv.LireOrigines(connexion, transaction);
+        var aucuneOrigine = origines.Count == 0;
+        var avertissements = new List<string>();
+        if (colonnes.Contient(IdClient) && aucuneOrigine)
+            avertissements.Add("Aucun n° client de l'ancien programme n'est enregistré dans la base : les locations ne peuvent être " +
+                               "rattachées que par l'email. Importez (ou réimportez) d'abord le fichier des clients avec sa colonne n° client " +
+                               "(« IDClient ») : les clients déjà présents recevront leur numéro sans être modifiés.");
+        if (!colonnes.Contient(IdClient))
+            avertissements.Add("Aucune colonne de n° client n'a été reconnue : les locations sont rattachées par l'email du client seulement. " +
+                               "Si le fichier contient le n° client de l'ancien programme, renommez sa colonne « IDClient ».");
 
         // Locations existantes : n° de réservation, et client + dates.
         var reservations = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -313,7 +333,9 @@ internal static class ImportCsvLocations
             else if (idOrigine is null && email is null) erreurs.Add("Client non renseigné (n° client ou email).");
             else
                 erreurs.Add($"Client introuvable ({string.Join(", ", new[] { idOrigine is null ? null : $"n° {idOrigine}", email }.OfType<string>())}) : " +
-                            "importez d'abord le fichier des clients (ligne client rejetée ?).");
+                            (idOrigine is not null && aucuneOrigine
+                                ? "aucun n° client n'est enregistré, réimportez d'abord le fichier des clients avec sa colonne n° client."
+                                : "importez d'abord le fichier des clients (ligne client rejetée ?)."));
             location.IdClient = idClient;
 
             location.DateDebut = LireDateHeure(debutTexte, colonnes.Valeur(ligne, HeureDebut), Location.HeureDebutParDefaut, "d'arrivée", erreurs);
@@ -361,7 +383,7 @@ internal static class ImportCsvLocations
             if (enregistrer) LocationRepository.Inserer(connexion, transaction, location);
             lignes.Add(new LigneRapport(ligne.NumeroLigne, StatutLigne.AImporter, resume, ""));
         }
-        return ImportCsv.Rapport(TypeImport.Locations, tableau, colonnes, Champs, obligatoires, null, lignes, enregistrer);
+        return ImportCsv.Rapport(TypeImport.Locations, tableau, colonnes, Champs, obligatoires, null, lignes, enregistrer, avertissements);
     }
 
     /// <summary>Date du fichier ; heure prise dans la colonne d'heure, sinon dans la date, sinon l'heure par défaut (16h / 10h).</summary>
@@ -407,6 +429,20 @@ internal static class ImportCsvLocations
 
 internal static class Synonymes
 {
+    /// <summary>Numéro du client dans l'ancien programme (WinDev : « IDClient »).</summary>
+    public static readonly string[] IdClient =
+    [
+        "idclient", "idclients", "idduclient", "clientid", "idcli",
+        "numclient", "numcli", "numeroclient", "numeroduclient", "numerodeclient",
+        "nclient", "nduclient", "noclient", "noduclient", "nocli",
+        "codeclient", "codecli", "refclient", "referenceclient", "identifiantclient", "identifiantduclient", "cleclient",
+        "clientnum", "clientno", "clientnumero", "clientcode",
+    ];
+
+    /// <summary>« IDClient (auto) », « IDClient_WinDev », « Numéro client ancien »...</summary>
+    public static readonly string[] DebutsIdClient =
+        ["idclient", "numclient", "numeroclient", "numeroduclient", "codeclient", "identifiantclient", "refclient", "clientid", "nclient", "noclient"];
+
     public static readonly string[] Email =
         ["email", "mail", "courriel", "emailclient", "mailclient", "adressemail", "adresseemail", "adresseelectronique", "emailadresse"];
 

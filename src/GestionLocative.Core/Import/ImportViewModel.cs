@@ -39,11 +39,14 @@ public sealed partial class ImportViewModel(BaseDeDonnees baseDeDonnees) : Obser
     [ObservableProperty] private string? _cheminFichier;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Resume), nameof(DescriptionFichier), nameof(Colonnes), nameof(PeutImporter), nameof(AUnRapport))]
+    [NotifyPropertyChangedFor(nameof(Resume), nameof(DescriptionFichier), nameof(Colonnes), nameof(PeutImporter), nameof(AUnRapport), nameof(Avertissements))]
     [NotifyCanExecuteChangedFor(nameof(ImporterCommand))]
     private RapportImport? _rapport;
 
     public bool AUnRapport => Rapport is not null;
+
+    /// <summary>Avertissements du rapport, un par ligne (null s'il n'y en a pas, pour masquer le bloc).</summary>
+    public string? Avertissements => Rapport is { Avertissements.Count: > 0 } r ? string.Join(Environment.NewLine, r.Avertissements) : null;
     public string Resume => Rapport?.Resume ?? "";
     public string DescriptionFichier => Rapport?.DescriptionFichier ?? "";
 
