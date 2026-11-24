@@ -5,24 +5,26 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:GestionLocative.Core.ViewModels;assembly=GestionLocative.Core"
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:CalendarViewModel}"
         Title="Gestion locative"
         Width="1200" Height="820" MinWidth="760" MinHeight="560"
         WindowStartupLocation="CenterScreen"
         Background="{StaticResource FondFenetre}"
         FontFamily="Segoe UI">
 
-    <Window.DataContext>
-        <vm:CalendarViewModel />
-    </Window.DataContext>
-
     <!-- Raccourcis clavier : Page précédente / Page suivante -->
     <Window.InputBindings>
         <KeyBinding Key="PageUp" Command="{Binding MoisPrecedentCommand}" />
         <KeyBinding Key="PageDown" Command="{Binding MoisSuivantCommand}" />
     </Window.InputBindings>
+    <Window.CommandBindings>
+        <!-- Ctrl+N : nouvelle location -->
+        <CommandBinding Command="New" Executed="NouvelleLocation_Executed" />
+    </Window.CommandBindings>
 
     <Grid Margin="24">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -31,6 +33,11 @@
         <!-- En-tête : mois affiché à gauche, navigation à droite -->
         <DockPanel Grid.Row="0" Margin="0,0,0,16" LastChildFill="True">
             <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource BoutonPrincipal}"
+                        Height="40" Margin="0,0,12,0"
+                        Content="+ Nouvelle location"
+                        ToolTip="Créer une location (Ctrl+N). Astuce : double-cliquez sur un jour pour la commencer ce jour-là."
+                        Command="New" />
                 <Button Style="{StaticResource BoutonNavigation}"
                         Content="&#xE76B;"
                         ToolTip="Mois précédent (Page préc.)"
@@ -54,8 +61,23 @@
                        VerticalAlignment="Center" />
         </DockPanel>
 
+        <!-- Erreur de lecture des locations (base inaccessible...) -->
+        <Border Grid.Row="1" Margin="0,0,0,12" Padding="10,8" CornerRadius="6"
+                Background="{StaticResource FondErreur}" BorderBrush="{StaticResource Erreur}" BorderThickness="1">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding MessageErreur}" Value="{x:Null}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding MessageErreur}" TextWrapping="Wrap" FontSize="13" Foreground="{StaticResource Erreur}" />
+        </Border>
+
         <!-- Noms des jours, du lundi au dimanche -->
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding JoursSemaine}" Margin="0,0,0,6">
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding JoursSemaine}" Margin="0,0,0,6">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="7" />
@@ -71,7 +93,7 @@
         </ItemsControl>
 
         <!-- Vignettes des jours -->
-        <ItemsControl Grid.Row="2" ItemsSource="{Binding Jours}" Focusable="False">
+        <ItemsControl Grid.Row="3" ItemsSource="{Binding Jours}" Focusable="False">
             <ItemsControl.ItemsPanel>
                 <ItemsPanelTemplate>
                     <UniformGrid Columns="7" />
@@ -84,7 +106,10 @@
                             CornerRadius="8"
                             Background="{StaticResource FondVignette}"
                             BorderBrush="{StaticResource Bordure}"
-                            BorderThickness="1">
+                            BorderThickness="1"
+                            Cursor="Hand"
+                            ToolTip="Double-cliquez pour créer une location à partir de ce jour"
+                            MouseLeftButtonDown="Vignette_MouseLeftButtonDown">
                         <DockPanel>
                             <!-- Numéro du jour -->
                             <Border x:Name="Pastille" DockPanel.Dock="Top"
@@ -99,7 +124,7 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
 
-                            <!-- Emplacement des réservations / locations (à venir) -->
+                            <!-- Locations du jour (arrivées, séjours en cours, départs) -->
                             <ItemsControl ItemsSource="{Binding Entrees}" Margin="0,4,0,0">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>

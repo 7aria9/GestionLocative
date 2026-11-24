@@ -59,13 +59,30 @@ public sealed partial class CalendarViewModel : ObservableObject
     [RelayCommand]
     private void MoisSuivant() => MoisAffiche = MoisAffiche.AddMonths(1);
 
+    /// <summary>Message affiché si les locations n'ont pas pu être lues (base inaccessible...).</summary>
+    [ObservableProperty]
+    private string? _messageErreur;
+
     partial void OnMoisAfficheChanged(DateOnly value) => Recharger();
+
+    /// <summary>Relit les locations du mois affiché (après une création, un changement de base...).</summary>
+    public void Actualiser() => Recharger();
 
     private void Recharger()
     {
         var aujourdhui = Aujourdhui();
         var dates = MonthGrid.GetDays(MoisAffiche.Year, MoisAffiche.Month);
-        var entrees = _source.GetEntries(dates[0], dates[^1]).ToLookup(e => e.Date);
+        ILookup<DateOnly, CalendarEntry> entrees;
+        try
+        {
+            entrees = _source.GetEntries(dates[0], dates[^1]).ToLookup(e => e.Date);
+            MessageErreur = null;
+        }
+        catch (Exception ex)
+        {
+            entrees = Array.Empty<CalendarEntry>().ToLookup(e => e.Date);
+            MessageErreur = $"Impossible de lire les locations : {ex.Message}";
+        }
 
         Jours.Clear();
         foreach (var date in dates)
@@ -77,6 +94,13 @@ public sealed partial class CalendarViewModel : ObservableObject
                 entrees[date]));
         }
         OnPropertyChanged(nameof(NombreSemaines));
+    }
+
+    /// <summary>Jour proposé par défaut pour une nouvelle location : aujourd'hui s'il est dans le mois affiché, sinon le 1er du mois.</summary>
+    public DateOnly JourParDefaut()
+    {
+        var aujourdhui = Aujourdhui();
+        return aujourdhui.Year == MoisAffiche.Year && aujourdhui.Month == MoisAffiche.Month ? aujourdhui : MoisAffiche;
     }
 
     private DateOnly Aujourdhui() => DateOnly.FromDateTime(_horloge.GetLocalNow().DateTime);

@@ -91,6 +91,46 @@
     </Style>
 
     <SolidColorBrush x:Key="Erreur" Color="#B91C1C" />
+    <SolidColorBrush x:Key="FondErreur" Color="#FEF2F2" />
+
+    <!-- Libellé au-dessus d'un champ de saisie -->
+    <Style x:Key="Libelle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource TexteSecondaire}" />
+        <Setter Property="Margin" Value="0,10,0,4" />
+    </Style>
+
+    <!-- Titre de section dans une fenêtre de saisie -->
+    <Style x:Key="TitreSection" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{StaticResource Texte}" />
+        <Setter Property="Margin" Value="0,18,0,0" />
+    </Style>
+
+    <!-- Champ de saisie -->
+    <Style x:Key="Champ" TargetType="TextBox">
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Padding" Value="6,0" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <!-- Bloc d'erreurs de saisie, masqué s'il n'y a rien à afficher -->
+    <Style x:Key="BlocErreurs" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource FondErreur}" />
+        <Setter Property="BorderBrush" Value="{StaticResource Erreur}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="Padding" Value="10,8" />
+        <Setter Property="Margin" Value="0,16,0,0" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Erreurs}" Value="{x:Null}">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
     <SolidColorBrush x:Key="Succes" Color="#15803D" />
 
 </ResourceDictionary>
