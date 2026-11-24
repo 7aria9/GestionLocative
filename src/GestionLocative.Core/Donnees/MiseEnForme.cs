@@ -80,6 +80,32 @@ public static class MiseEnForme
         return "+" + international;
     }
 
+    /// <summary>
+    /// Affichage espacé d'un numéro international : « +33612345678 » → « +33 6 12 34 56 78 »,
+    /// « +262692123456 » → « +262 692 12 34 56 ». Les numéros étrangers (regroupement propre à chaque pays)
+    /// restent sans espaces : « +442079460958 ».
+    /// </summary>
+    public static string TelephoneAffiche(string? telephone)
+    {
+        if (string.IsNullOrWhiteSpace(telephone)) return "";
+        var numero = Telephone(telephone);
+        if (numero is null) return telephone.Trim();
+
+        var chiffres = numero[1..];
+        foreach (var indicatif in OutreMer.Select(o => o.Indicatif).Distinct().Append("33"))
+        {
+            if (!chiffres.StartsWith(indicatif)) continue;
+            var national = chiffres[indicatif.Length..];
+            // France : 9 chiffres après l'indicatif → « 6 12 34 56 78 » ; DOM : « 692 12 34 56 ».
+            var tete = indicatif == "33" ? 1 : 3;
+            if (indicatif != "33" && national.Length != 9) break;
+            var groupes = new List<string> { national[..tete] };
+            for (var i = tete; i < national.Length; i += 2) groupes.Add(national.Substring(i, Math.Min(2, national.Length - i)));
+            return $"+{indicatif} {string.Join(' ', groupes)}";
+        }
+        return numero;
+    }
+
     /// <summary>Email en minuscules sans espaces autour ; null si ce n'est pas une adresse email valide.</summary>
     public static string? Email(string? email)
     {

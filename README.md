@@ -49,7 +49,7 @@ Un seul fichier SQLite contient les clients et les locations.
 | Nom | `nom` | obligatoire, enregistré en MAJUSCULES |
 | Prénom | `prenom` | obligatoire, majuscule initiale (« Jean-Pierre ») |
 | Adresse, Code postal, Ville | `adresse`, `code_postal`, `ville` | facultatifs |
-| Téléphone | `telephone` | obligatoire, format international : « 06 12 34 56 78 » devient « +33612345678 » (DOM : +262, +590...) ; un numéro étranger se saisit avec + ou 00 |
+| Téléphone | `telephone` | obligatoire, format international : « 06 12 34 56 78 » est enregistré « +33612345678 » et affiché « +33 6 12 34 56 78 » (DOM : +262, +590...) ; un numéro étranger se saisit avec + ou 00 |
 | Email | `email` | obligatoire, format d'email vérifié, enregistré en minuscules, unique |
 | Plaque d'immatriculation | `plaque_immatriculation` | facultative, enregistrée en majuscules |
 

@@ -14,7 +14,11 @@ public sealed class Client
     public string? Adresse { get; set; }
     public string? CodePostal { get; set; }
     public string? Ville { get; set; }
+    /// <summary>Enregistré au format international sans espaces (« +33612345678 »).</summary>
     public string Telephone { get; set; } = "";
+
+    /// <summary>Téléphone pour l'affichage, espacé : « +33 6 12 34 56 78 ».</summary>
+    public string TelephoneAffiche => MiseEnForme.TelephoneAffiche(Telephone);
 
     /// <summary>Unique dans la base, sans tenir compte des majuscules / minuscules.</summary>
     public string Email { get; set; } = "";

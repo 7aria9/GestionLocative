@@ -44,6 +44,18 @@ public class MiseEnFormeTests
     public void Telephone_non_reconnu(string saisie) => Assert.Null(MiseEnForme.Telephone(saisie));
 
     [Theory]
+    [InlineData("+33612345678", "+33 6 12 34 56 78")]
+    [InlineData("06 12 34 56 78", "+33 6 12 34 56 78")]
+    [InlineData("+33240123456", "+33 2 40 12 34 56")]
+    [InlineData("+262692123456", "+262 692 12 34 56")]
+    [InlineData("+590690123456", "+590 690 12 34 56")]
+    [InlineData("+442079460958", "+442079460958")]
+    [InlineData("pas un numéro", "pas un numéro")]
+    [InlineData("", "")]
+    public void Telephone_affiche_espace(string enregistre, string attendu) =>
+        Assert.Equal(attendu, MiseEnForme.TelephoneAffiche(enregistre));
+
+    [Theory]
     [InlineData("jean.dupont@example.com", "jean.dupont@example.com")]
     [InlineData(" Jean.Dupont@Example.COM ", "jean.dupont@example.com")]
     [InlineData("a+location@sous.domaine.fr", "a+location@sous.domaine.fr")]

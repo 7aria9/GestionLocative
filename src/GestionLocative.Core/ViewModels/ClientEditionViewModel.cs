@@ -40,11 +40,11 @@ public sealed partial class ClientEditionViewModel(ClientRepository clients) : O
             PlaqueImmatriculation = PlaqueImmatriculation,
         };
 
-        // Affiche la mise en forme appliquée (NOM, Prénom, +33..., email en minuscules).
+        // Affiche la mise en forme appliquée (NOM, Prénom, +33 6 12..., email en minuscules).
         client.Normaliser();
         Nom = client.Nom;
         Prenom = client.Prenom;
-        Telephone = client.Telephone;
+        Telephone = client.TelephoneAffiche;
         Email = client.Email;
 
         var erreurs = client.Valider();

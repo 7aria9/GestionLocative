@@ -68,7 +68,7 @@ public sealed class ClientEditionViewModelTests : IDisposable
         vm.EnregistrerCommand.Execute(null);
 
         Assert.Null(vm.Erreurs);
-        Assert.Equal(("DE LA TOUR", "Jean-Pierre", "+33612345678", "jp@example.fr"), (vm.Nom, vm.Prenom, vm.Telephone, vm.Email));
+        Assert.Equal(("DE LA TOUR", "Jean-Pierre", "+33 6 12 34 56 78", "jp@example.fr"), (vm.Nom, vm.Prenom, vm.Telephone, vm.Email));
         var lu = new ClientRepository(_base.Base).ObtenirParId(vm.ClientEnregistre!.IdClient)!;
         Assert.Equal(("DE LA TOUR", "Jean-Pierre", "+33612345678", "jp@example.fr"), (lu.Nom, lu.Prenom, lu.Telephone, lu.Email));
     }
