@@ -1,30 +1,25 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Couleurs -->
-    <SolidColorBrush x:Key="FondFenetre" Color="#F3F4F6" />
-    <SolidColorBrush x:Key="FondVignette" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="FondVignetteWeekEnd" Color="#F8FAFC" />
-    <SolidColorBrush x:Key="FondVignetteHorsMois" Color="#ECEEF1" />
-    <SolidColorBrush x:Key="Bordure" Color="#E2E5EA" />
-    <SolidColorBrush x:Key="Texte" Color="#1F2937" />
-    <SolidColorBrush x:Key="TexteSecondaire" Color="#6B7280" />
-    <SolidColorBrush x:Key="TexteHorsMois" Color="#A0A6B0" />
-    <SolidColorBrush x:Key="Accent" Color="#2563EB" />
-    <SolidColorBrush x:Key="AccentClair" Color="#DBEAFE" />
-    <SolidColorBrush x:Key="Survol" Color="#E5E7EB" />
+    <!--
+        Styles communs aux deux thèmes, dans l'esprit de Scan-Online : Segoe UI, angles arrondis (8 px),
+        bordure qui s'allume à l'accent au survol, bouton principal en dégradé rose → violet.
+        Les couleurs viennent de Themes/Clair.xaml ou Themes/Sombre.xaml ; elles sont toujours lues en
+        DynamicResource pour que le changement de thème s'applique sans redémarrer.
+    -->
 
-    <!-- Bouton de navigation (mois précédent / suivant) -->
+    <!-- Bouton de navigation (mois précédent / suivant, paramètres) -->
     <Style x:Key="BoutonNavigation" TargetType="Button">
         <Setter Property="Width" Value="40" />
         <Setter Property="Height" Value="40" />
         <Setter Property="Margin" Value="4,0,0,0" />
         <Setter Property="FontFamily" Value="Segoe MDL2 Assets" />
         <Setter Property="FontSize" Value="14" />
-        <Setter Property="Foreground" Value="{StaticResource Texte}" />
-        <Setter Property="Background" Value="{StaticResource FondVignette}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Bordure}" />
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="Background" Value="{DynamicResource FondVignette}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Bordure}" />
         <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -37,10 +32,11 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Fond" Property="Background" Value="{StaticResource Survol}" />
+                            <Setter TargetName="Fond" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Accent}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Fond" Property="Background" Value="{StaticResource AccentClair}" />
+                            <Setter TargetName="Fond" Property="Background" Value="{DynamicResource AccentClair}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -55,24 +51,129 @@
         <Setter Property="Padding" Value="14,0" />
         <Setter Property="Margin" Value="8,0,0,0" />
         <Setter Property="FontSize" Value="13" />
-        <Setter Property="Foreground" Value="{StaticResource Texte}" />
-        <Setter Property="Background" Value="{StaticResource FondVignette}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Bordure}" />
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="Background" Value="{DynamicResource FondChamp}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Bordure}" />
+        <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Fond"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="6"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="8"
                             Padding="{TemplateBinding Padding}">
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" RecognizesAccessKey="True" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Fond" Property="Background" Value="{StaticResource Survol}" />
+                            <Setter TargetName="Fond" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Fond" Property="Opacity" Value="0.8" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Fond" Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Bouton principal (Enregistrer, Nouvelle location) : dégradé rose → violet -->
+    <Style x:Key="BoutonPrincipal" TargetType="Button" BasedOn="{StaticResource Bouton}">
+        <Setter Property="Foreground" Value="{DynamicResource TexteSurAccent}" />
+        <Setter Property="Background" Value="{DynamicResource AccentDegrade}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- Libellé au-dessus d'un champ de saisie -->
+    <Style x:Key="Libelle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource TexteSecondaire}" />
+        <Setter Property="Margin" Value="0,10,0,4" />
+    </Style>
+
+    <!-- Titre de section dans une fenêtre de saisie -->
+    <Style x:Key="TitreSection" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="Margin" Value="0,18,0,0" />
+    </Style>
+
+    <!-- Champs de saisie (tous, avec ou sans le style « Champ ») -->
+    <Style TargetType="TextBox">
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="Background" Value="{DynamicResource FondChamp}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Bordure}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CaretBrush" Value="{DynamicResource Accent}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource Accent2}" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Fond" CornerRadius="8"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ScrollViewer x:Name="PART_ContentHost" Focusable="False"
+                                      HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"
+                                      VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Fond" Property="BorderBrush" Value="{DynamicResource Accent2}" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Fond" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Fond" Property="Opacity" Value="0.5" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="Champ" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="Height" Value="32" />
+        <Setter Property="Padding" Value="6,0" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+    </Style>
+
+    <!-- Cases à cocher et boutons radio -->
+    <Style TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal" Background="Transparent">
+                        <Border x:Name="Case" Width="18" Height="18" CornerRadius="5" VerticalAlignment="Center"
+                                Background="{DynamicResource FondChamp}" BorderBrush="{DynamicResource Bordure}" BorderThickness="1.5">
+                            <Path x:Name="Coche" Data="M3.5,9 L7.5,12.5 L14,5" Stroke="{DynamicResource TexteSurAccent}" StrokeThickness="2"
+                                  Visibility="Collapsed" />
+                        </Border>
+                        <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center" RecognizesAccessKey="True" />
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Case" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Case" Property="Background" Value="{DynamicResource AccentDegrade}" />
+                            <Setter TargetName="Case" Property="BorderThickness" Value="0" />
+                            <Setter TargetName="Coche" Property="Visibility" Value="Visible" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.5" />
@@ -83,46 +184,273 @@
         </Setter>
     </Style>
 
-    <!-- Bouton principal (Enregistrer) -->
-    <Style x:Key="BoutonPrincipal" TargetType="Button" BasedOn="{StaticResource Bouton}">
-        <Setter Property="Foreground" Value="White" />
-        <Setter Property="Background" Value="{StaticResource Accent}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Accent}" />
-    </Style>
-
-    <SolidColorBrush x:Key="Erreur" Color="#B91C1C" />
-    <SolidColorBrush x:Key="FondErreur" Color="#FEF2F2" />
-
-    <!-- Libellé au-dessus d'un champ de saisie -->
-    <Style x:Key="Libelle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="12" />
-        <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{StaticResource TexteSecondaire}" />
-        <Setter Property="Margin" Value="0,10,0,4" />
-    </Style>
-
-    <!-- Titre de section dans une fenêtre de saisie -->
-    <Style x:Key="TitreSection" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Foreground" Value="{StaticResource Texte}" />
-        <Setter Property="Margin" Value="0,18,0,0" />
-    </Style>
-
-    <!-- Champ de saisie -->
-    <Style x:Key="Champ" TargetType="TextBox">
-        <Setter Property="Height" Value="32" />
-        <Setter Property="Padding" Value="6,0" />
+    <!-- Choix sous forme de carte (thème clair / sombre dans les Paramètres) -->
+    <Style x:Key="CarteChoix" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="Background" Value="{DynamicResource FondChamp}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Bordure}" />
+        <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FontSize" Value="13" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Fond" CornerRadius="10" Padding="10" BorderThickness="1.5"
+                            Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Fond" Property="BorderBrush" Value="{DynamicResource Accent2}" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Fond" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                            <Setter TargetName="Fond" Property="BorderThickness" Value="2" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Liste des clients -->
+    <Style TargetType="ListBox">
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="Background" Value="{DynamicResource FondChamp}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Bordure}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="4" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBox">
+                    <Border CornerRadius="8" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
+                        <ScrollViewer Focusable="False">
+                            <ItemsPresenter />
+                        </ScrollViewer>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ListBoxItem">
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="Fond" CornerRadius="6" Padding="8,3" Margin="0,1" Background="Transparent"
+                            BorderThickness="3,0,0,0" BorderBrush="Transparent">
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Fond" Property="Background" Value="{DynamicResource Survol}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Fond" Property="Background" Value="{DynamicResource AccentClair}" />
+                            <Setter TargetName="Fond" Property="BorderBrush" Value="{DynamicResource Accent}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Sélecteur de date : champ aux couleurs du thème (le calendrier déroulant reste celui de Windows) -->
+    <Style TargetType="DatePicker">
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="Background" Value="{DynamicResource FondChamp}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Bordure}" />
+        <Setter Property="FontSize" Value="13" />
+    </Style>
+
+    <Style TargetType="DatePickerTextBox">
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="CaretBrush" Value="{DynamicResource Accent}" />
+        <Setter Property="SelectionBrush" Value="{DynamicResource Accent2}" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="DatePickerTextBox">
+                    <ScrollViewer x:Name="PART_ContentHost" Focusable="False" Margin="2,0"
+                                  HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"
+                                  VerticalAlignment="Center" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Bulles d'aide -->
+    <Style TargetType="ToolTip">
+        <Setter Property="Background" Value="{DynamicResource FondMenu}" />
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Bordure}" />
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+    </Style>
+
+    <!-- Menu du clic droit (et ses sous-menus) -->
+    <Style TargetType="ContextMenu">
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <!-- Fond plein (le popup du menu n'est pas toujours transparent : pas d'angles arrondis). -->
+                    <Border Padding="6" Background="{DynamicResource FondMenu}"
+                            BorderBrush="{DynamicResource Bordure}" BorderThickness="1" MinWidth="240">
+                        <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="MenuItem">
+        <Setter Property="Foreground" Value="{DynamicResource Texte}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Grid>
+                        <Border x:Name="Fond" CornerRadius="7" Padding="12,8" Background="Transparent">
+                            <DockPanel>
+                                <!-- Flèche des sous-menus (Prestataire, Location) -->
+                                <Path x:Name="Fleche" DockPanel.Dock="Right" Data="M0,0 L4,4 L0,8" Margin="16,0,0,0"
+                                      Stroke="{TemplateBinding Foreground}" StrokeThickness="1.6" VerticalAlignment="Center"
+                                      Visibility="Collapsed" />
+                                <ContentPresenter ContentSource="Header" RecognizesAccessKey="True" VerticalAlignment="Center" />
+                            </DockPanel>
+                        </Border>
+                        <Popup x:Name="PART_Popup" Placement="Right" HorizontalOffset="4" VerticalOffset="-7"
+                               IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                               AllowsTransparency="True" Focusable="False" PopupAnimation="Fade">
+                            <Border Padding="6" Background="{DynamicResource FondMenu}"
+                                    BorderBrush="{DynamicResource Bordure}" BorderThickness="1" MinWidth="240">
+                                <StackPanel IsItemsHost="True" KeyboardNavigation.DirectionalNavigation="Cycle" />
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasItems" Value="True">
+                            <Setter TargetName="Fleche" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Fond" Property="Background" Value="{DynamicResource Survol}" />
+                            <Setter Property="Foreground" Value="{DynamicResource Accent}" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Fond" Property="Opacity" Value="0.4" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Separator">
+                    <Border Height="1" Margin="8,5" Background="{DynamicResource Bordure}" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Barres de défilement fines et arrondies -->
+    <Style x:Key="PageDefilement" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Border Background="Transparent" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="CurseurDefilement" TargetType="Thumb">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border x:Name="Fond" CornerRadius="4" Background="{DynamicResource BarreDefilement}" Margin="2" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Fond" Property="Background" Value="{DynamicResource Accent2}" />
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="True">
+                            <Setter TargetName="Fond" Property="Background" Value="{DynamicResource Accent}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ScrollBar">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Width" Value="10" />
+        <Setter Property="MinWidth" Value="10" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Border Background="{TemplateBinding Background}">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource PageDefilement}" Command="ScrollBar.PageUpCommand" />
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource PageDefilement}" Command="ScrollBar.PageDownCommand" />
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource CurseurDefilement}" />
+                            </Track.Thumb>
+                        </Track>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="Height" Value="10" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ScrollBar">
+                            <Border Background="{TemplateBinding Background}">
+                                <Track x:Name="PART_Track">
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Style="{StaticResource PageDefilement}" Command="ScrollBar.PageLeftCommand" />
+                                    </Track.DecreaseRepeatButton>
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Style="{StaticResource PageDefilement}" Command="ScrollBar.PageRightCommand" />
+                                    </Track.IncreaseRepeatButton>
+                                    <Track.Thumb>
+                                        <Thumb Style="{StaticResource CurseurDefilement}" />
+                                    </Track.Thumb>
+                                </Track>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <!-- Bloc d'erreurs de saisie, masqué s'il n'y a rien à afficher -->
     <Style x:Key="BlocErreurs" TargetType="Border">
-        <Setter Property="Background" Value="{StaticResource FondErreur}" />
-        <Setter Property="BorderBrush" Value="{StaticResource Erreur}" />
+        <Setter Property="Background" Value="{DynamicResource FondErreur}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource Erreur}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="6" />
+        <Setter Property="CornerRadius" Value="8" />
         <Setter Property="Padding" Value="10,8" />
         <Setter Property="Margin" Value="0,16,0,0" />
         <Style.Triggers>
@@ -131,38 +459,5 @@
             </DataTrigger>
         </Style.Triggers>
     </Style>
-    <SolidColorBrush x:Key="Succes" Color="#15803D" />
-
-    <!-- Couleurs des locations dans le calendrier (fond, texte, liseré) : une par location, en boucle -->
-    <SolidColorBrush x:Key="LocationFond0" Color="#DBEAFE" />
-    <SolidColorBrush x:Key="LocationTexte0" Color="#1E3A8A" />
-    <SolidColorBrush x:Key="LocationLisere0" Color="#3B82F6" />
-    <SolidColorBrush x:Key="LocationFond1" Color="#DCFCE7" />
-    <SolidColorBrush x:Key="LocationTexte1" Color="#14532D" />
-    <SolidColorBrush x:Key="LocationLisere1" Color="#22C55E" />
-    <SolidColorBrush x:Key="LocationFond2" Color="#FEF3C7" />
-    <SolidColorBrush x:Key="LocationTexte2" Color="#78350F" />
-    <SolidColorBrush x:Key="LocationLisere2" Color="#F59E0B" />
-    <SolidColorBrush x:Key="LocationFond3" Color="#FCE7F3" />
-    <SolidColorBrush x:Key="LocationTexte3" Color="#831843" />
-    <SolidColorBrush x:Key="LocationLisere3" Color="#EC4899" />
-    <SolidColorBrush x:Key="LocationFond4" Color="#EDE9FE" />
-    <SolidColorBrush x:Key="LocationTexte4" Color="#4C1D95" />
-    <SolidColorBrush x:Key="LocationLisere4" Color="#8B5CF6" />
-    <SolidColorBrush x:Key="LocationFond5" Color="#CCFBF1" />
-    <SolidColorBrush x:Key="LocationTexte5" Color="#134E4A" />
-    <SolidColorBrush x:Key="LocationLisere5" Color="#14B8A6" />
-    <SolidColorBrush x:Key="LocationFond6" Color="#FFEDD5" />
-    <SolidColorBrush x:Key="LocationTexte6" Color="#7C2D12" />
-    <SolidColorBrush x:Key="LocationLisere6" Color="#F97316" />
-    <SolidColorBrush x:Key="LocationFond7" Color="#FEE2E2" />
-    <SolidColorBrush x:Key="LocationTexte7" Color="#7F1D1D" />
-    <SolidColorBrush x:Key="LocationLisere7" Color="#EF4444" />
-    <SolidColorBrush x:Key="LocationFond8" Color="#ECFCCB" />
-    <SolidColorBrush x:Key="LocationTexte8" Color="#365314" />
-    <SolidColorBrush x:Key="LocationLisere8" Color="#84CC16" />
-    <SolidColorBrush x:Key="LocationFond9" Color="#CFFAFE" />
-    <SolidColorBrush x:Key="LocationTexte9" Color="#164E63" />
-    <SolidColorBrush x:Key="LocationLisere9" Color="#06B6D4" />
 
 </ResourceDictionary>

@@ -1,0 +1,72 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Thème clair : fond lavande très pâle, surfaces blanches, accents rose → violet (repris de Scan-Online). -->
+    <Color x:Key="AccentCouleur">#E5306E</Color>
+    <Color x:Key="Accent2Couleur">#7C4DEB</Color>
+
+    <SolidColorBrush x:Key="Accent" Color="{StaticResource AccentCouleur}" />
+    <SolidColorBrush x:Key="Accent2" Color="{StaticResource Accent2Couleur}" />
+    <SolidColorBrush x:Key="FondFenetre" Color="#F6F5FA" />
+    <SolidColorBrush x:Key="FondVignette" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="FondVignetteWeekEnd" Color="#FAF8FD" />
+    <SolidColorBrush x:Key="FondVignetteHorsMois" Color="#EEECF4" />
+    <SolidColorBrush x:Key="FondChamp" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="FondMenu" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Survol" Color="#F1EEF8" />
+    <SolidColorBrush x:Key="AccentClair" Color="#FCE4EE" />
+    <SolidColorBrush x:Key="Bordure" Color="#E2DFEC" />
+    <SolidColorBrush x:Key="Texte" Color="#1C1B29" />
+    <SolidColorBrush x:Key="TexteSecondaire" Color="#6B6A80" />
+    <SolidColorBrush x:Key="TexteHorsMois" Color="#A9A7B8" />
+    <SolidColorBrush x:Key="TexteSurAccent" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="Erreur" Color="#B91C1C" />
+    <SolidColorBrush x:Key="FondErreur" Color="#FEF2F2" />
+    <SolidColorBrush x:Key="Succes" Color="#15803D" />
+    <SolidColorBrush x:Key="BarreDefilement" Color="#D6D2E2" />
+
+    <!-- Dégradé rose → violet : bouton principal, jour courant -->
+    <LinearGradientBrush x:Key="AccentDegrade" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource AccentCouleur}" Offset="0" />
+        <GradientStop Color="{StaticResource Accent2Couleur}" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- Bandeau du haut de la fenêtre principale -->
+    <LinearGradientBrush x:Key="EnTeteDegrade" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#FCE7F0" Offset="0" />
+        <GradientStop Color="#EFE9FC" Offset="0.55" />
+        <GradientStop Color="#F6F5FA" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- Couleurs des locations dans le calendrier (fond, texte, liseré) : une par location, en boucle -->
+    <SolidColorBrush x:Key="LocationFond0" Color="#DBEAFE" />
+    <SolidColorBrush x:Key="LocationTexte0" Color="#1E3A8A" />
+    <SolidColorBrush x:Key="LocationLisere0" Color="#3B82F6" />
+    <SolidColorBrush x:Key="LocationFond1" Color="#DCFCE7" />
+    <SolidColorBrush x:Key="LocationTexte1" Color="#14532D" />
+    <SolidColorBrush x:Key="LocationLisere1" Color="#22C55E" />
+    <SolidColorBrush x:Key="LocationFond2" Color="#FEF3C7" />
+    <SolidColorBrush x:Key="LocationTexte2" Color="#78350F" />
+    <SolidColorBrush x:Key="LocationLisere2" Color="#F59E0B" />
+    <SolidColorBrush x:Key="LocationFond3" Color="#FCE7F3" />
+    <SolidColorBrush x:Key="LocationTexte3" Color="#831843" />
+    <SolidColorBrush x:Key="LocationLisere3" Color="#EC4899" />
+    <SolidColorBrush x:Key="LocationFond4" Color="#EDE9FE" />
+    <SolidColorBrush x:Key="LocationTexte4" Color="#4C1D95" />
+    <SolidColorBrush x:Key="LocationLisere4" Color="#8B5CF6" />
+    <SolidColorBrush x:Key="LocationFond5" Color="#CCFBF1" />
+    <SolidColorBrush x:Key="LocationTexte5" Color="#134E4A" />
+    <SolidColorBrush x:Key="LocationLisere5" Color="#14B8A6" />
+    <SolidColorBrush x:Key="LocationFond6" Color="#FFEDD5" />
+    <SolidColorBrush x:Key="LocationTexte6" Color="#7C2D12" />
+    <SolidColorBrush x:Key="LocationLisere6" Color="#F97316" />
+    <SolidColorBrush x:Key="LocationFond7" Color="#FEE2E2" />
+    <SolidColorBrush x:Key="LocationTexte7" Color="#7F1D1D" />
+    <SolidColorBrush x:Key="LocationLisere7" Color="#EF4444" />
+    <SolidColorBrush x:Key="LocationFond8" Color="#ECFCCB" />
+    <SolidColorBrush x:Key="LocationTexte8" Color="#365314" />
+    <SolidColorBrush x:Key="LocationLisere8" Color="#84CC16" />
+    <SolidColorBrush x:Key="LocationFond9" Color="#CFFAFE" />
+    <SolidColorBrush x:Key="LocationTexte9" Color="#164E63" />
+    <SolidColorBrush x:Key="LocationLisere9" Color="#06B6D4" />
+
+</ResourceDictionary>

@@ -45,6 +45,15 @@ le prix HT et le prix TTC. Le survol d'une location affiche tout le détail (dat
 
 Le prix HT est calculé à partir du tarif TTC avec le taux de TVA réglé dans **Paramètres** (10 % par défaut).
 
+### Thèmes clair et sombre
+
+Deux apparences dans le style de Scan-Online (Segoe UI, angles arrondis, accents rose → violet, bouton principal en dégradé) :
+**Clair** (par défaut) et **Sombre**. Le choix se fait en haut des **Paramètres** : le thème s'applique tout de suite
+pour l'essayer, et il est mémorisé sur le poste avec **Enregistrer** (« Annuler » revient au thème précédent).
+Il est enregistré dans `%APPDATA%\GestionLocative\parametres.json`, donc chaque ordinateur garde le sien.
+Les couleurs sont dans `Themes/Clair.xaml` et `Themes/Sombre.xaml` ; les styles communs dans `Theme.xaml`.
+Chaque location garde sa teinte dans les deux thèmes (fond pastel en clair, fond sombre teinté en sombre, texte contrasté et liseré vif).
+
 ## Créer une location
 
 Bouton **+ Nouvelle location** (ou Ctrl+N), ou **double-clic sur un jour** du calendrier pour commencer la location ce jour-là.

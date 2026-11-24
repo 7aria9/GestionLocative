@@ -2,6 +2,12 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Application.Resources>
-        <ResourceDictionary Source="Theme.xaml" />
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Couleurs : remplacé par Themes/Sombre.xaml si ce poste a choisi le thème sombre (voir GestionnaireTheme) -->
+                <ResourceDictionary Source="Themes/Clair.xaml" />
+                <ResourceDictionary Source="Theme.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

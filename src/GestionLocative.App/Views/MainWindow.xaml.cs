@@ -17,7 +17,13 @@ public partial class MainWindow : Window
         // La source relit App.Base à chaque fois, pour suivre un changement de base dans les paramètres.
         _vm = new CalendarViewModel(TimeProvider.System, new LocationsCalendarSource(() => App.Base));
         DataContext = _vm;
+
+        // Les couleurs des locations sont choisies à l'affichage : on redessine le mois quand le thème change.
+        GestionnaireTheme.Change += ThemeChange;
+        Closed += (_, _) => GestionnaireTheme.Change -= ThemeChange;
     }
+
+    private void ThemeChange(object? sender, EventArgs e) => _vm.Actualiser();
 
     private void Parametres_Click(object sender, RoutedEventArgs e)
     {

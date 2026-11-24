@@ -27,6 +27,9 @@ public partial class App : Application
 
         base.OnStartup(e);
 
+        // Thème clair ou sombre choisi sur ce poste, avant d'ouvrir la moindre fenêtre.
+        GestionnaireTheme.Appliquer(Parametres.Charger().Theme);
+
         // Tant que la fenêtre principale n'est pas affichée, fermer une boîte de dialogue ne doit pas quitter le programme.
         ShutdownMode = ShutdownMode.OnExplicitShutdown;
         if (!OuvrirBase())

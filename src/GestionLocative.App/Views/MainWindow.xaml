@@ -11,7 +11,8 @@
         Title="Gestion locative"
         Width="1200" Height="820" MinWidth="760" MinHeight="560"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource FondFenetre}"
+        Background="{DynamicResource FondFenetre}"
+        Foreground="{DynamicResource Texte}"
         FontFamily="Segoe UI">
 
     <!-- Raccourcis clavier : Page précédente / Page suivante -->
@@ -36,40 +37,42 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- En-tête : mois affiché à gauche, navigation à droite -->
-        <DockPanel Grid.Row="0" Margin="0,0,0,16" LastChildFill="True">
-            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Style="{StaticResource BoutonPrincipal}"
-                        Height="40" Margin="0,0,12,0"
-                        Content="+ Nouvelle location"
-                        ToolTip="Créer une location (Ctrl+N). Astuce : double-cliquez sur un jour pour la commencer ce jour-là."
-                        Command="New" />
-                <Button Style="{StaticResource BoutonNavigation}"
-                        Content="&#xE76B;"
-                        ToolTip="Mois précédent (Page préc.)"
-                        AutomationProperties.Name="Mois précédent"
-                        Command="{Binding MoisPrecedentCommand}" />
-                <Button Style="{StaticResource BoutonNavigation}"
-                        Content="&#xE76C;"
-                        ToolTip="Mois suivant (Page suiv.)"
-                        AutomationProperties.Name="Mois suivant"
-                        Command="{Binding MoisSuivantCommand}" />
-                <Button Style="{StaticResource BoutonNavigation}"
-                        Margin="16,0,0,0"
-                        Content="&#xE713;"
-                        ToolTip="Paramètres (emplacement de la base de données)"
-                        AutomationProperties.Name="Paramètres"
-                        Click="Parametres_Click" />
-            </StackPanel>
-            <TextBlock Text="{Binding Titre}"
-                       FontSize="28" FontWeight="SemiBold"
-                       Foreground="{StaticResource Texte}"
-                       VerticalAlignment="Center" />
-        </DockPanel>
+        <!-- En-tête sur bandeau dégradé : mois affiché à gauche, navigation à droite -->
+        <Border Grid.Row="0" Margin="-24,-24,-24,16" Padding="24,20,24,18" Background="{DynamicResource EnTeteDegrade}">
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Style="{StaticResource BoutonPrincipal}"
+                            Height="40" Margin="0,0,12,0"
+                            Content="+ Nouvelle location"
+                            ToolTip="Créer une location (Ctrl+N). Astuce : double-cliquez sur un jour pour la commencer ce jour-là."
+                            Command="New" />
+                    <Button Style="{StaticResource BoutonNavigation}"
+                            Content="&#xE76B;"
+                            ToolTip="Mois précédent (Page préc.)"
+                            AutomationProperties.Name="Mois précédent"
+                            Command="{Binding MoisPrecedentCommand}" />
+                    <Button Style="{StaticResource BoutonNavigation}"
+                            Content="&#xE76C;"
+                            ToolTip="Mois suivant (Page suiv.)"
+                            AutomationProperties.Name="Mois suivant"
+                            Command="{Binding MoisSuivantCommand}" />
+                    <Button Style="{StaticResource BoutonNavigation}"
+                            Margin="16,0,0,0"
+                            Content="&#xE713;"
+                            ToolTip="Paramètres (thème, base de données, TVA, prestataire)"
+                            AutomationProperties.Name="Paramètres"
+                            Click="Parametres_Click" />
+                </StackPanel>
+                <TextBlock Text="{Binding Titre}"
+                           FontSize="28" FontWeight="SemiBold"
+                           Foreground="{DynamicResource Texte}"
+                           VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
 
         <!-- Erreur de lecture des locations (base inaccessible...) -->
-        <Border Grid.Row="1" Margin="0,0,0,12" Padding="10,8" CornerRadius="6"
-                Background="{StaticResource FondErreur}" BorderBrush="{StaticResource Erreur}" BorderThickness="1">
+        <Border Grid.Row="1" Margin="0,0,0,12" Padding="10,8" CornerRadius="8"
+                Background="{DynamicResource FondErreur}" BorderBrush="{DynamicResource Erreur}" BorderThickness="1">
             <Border.Style>
                 <Style TargetType="Border">
                     <Style.Triggers>
@@ -79,7 +82,7 @@
                     </Style.Triggers>
                 </Style>
             </Border.Style>
-            <TextBlock Text="{Binding MessageErreur}" TextWrapping="Wrap" FontSize="13" Foreground="{StaticResource Erreur}" />
+            <TextBlock Text="{Binding MessageErreur}" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource Erreur}" />
         </Border>
 
         <!-- Noms des jours, du lundi au dimanche -->
@@ -93,7 +96,7 @@
                 <DataTemplate>
                     <TextBlock Text="{Binding}" Margin="10,0"
                                FontSize="13" FontWeight="SemiBold"
-                               Foreground="{StaticResource TexteSecondaire}" />
+                               Foreground="{DynamicResource TexteSecondaire}" />
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
@@ -110,8 +113,8 @@
                     <Border x:Name="Vignette"
                             Margin="3" Padding="8,6"
                             CornerRadius="8"
-                            Background="{StaticResource FondVignette}"
-                            BorderBrush="{StaticResource Bordure}"
+                            Background="{DynamicResource FondVignette}"
+                            BorderBrush="{DynamicResource Bordure}"
                             BorderThickness="1"
                             Cursor="Hand"
                             ToolTip="Double-cliquez pour créer une location à partir de ce jour (double-clic sur une location pour la modifier, clic droit pour copier ses informations)"
@@ -126,7 +129,7 @@
                                            Text="{Binding Numero}"
                                            Margin="6,0"
                                            FontSize="15" FontWeight="SemiBold"
-                                           Foreground="{StaticResource Texte}"
+                                           Foreground="{DynamicResource Texte}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
 
@@ -169,19 +172,19 @@
                     </Border>
                     <DataTemplate.Triggers>
                         <DataTrigger Binding="{Binding EstWeekEnd}" Value="True">
-                            <Setter TargetName="Vignette" Property="Background" Value="{StaticResource FondVignetteWeekEnd}" />
+                            <Setter TargetName="Vignette" Property="Background" Value="{DynamicResource FondVignetteWeekEnd}" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding EstDansLeMois}" Value="False">
-                            <Setter TargetName="Vignette" Property="Background" Value="{StaticResource FondVignetteHorsMois}" />
+                            <Setter TargetName="Vignette" Property="Background" Value="{DynamicResource FondVignetteHorsMois}" />
                             <Setter TargetName="Vignette" Property="BorderBrush" Value="Transparent" />
-                            <Setter TargetName="Numero" Property="Foreground" Value="{StaticResource TexteHorsMois}" />
+                            <Setter TargetName="Numero" Property="Foreground" Value="{DynamicResource TexteHorsMois}" />
                             <Setter TargetName="Numero" Property="FontWeight" Value="Normal" />
                         </DataTrigger>
                         <DataTrigger Binding="{Binding EstAujourdhui}" Value="True">
-                            <Setter TargetName="Vignette" Property="BorderBrush" Value="{StaticResource Accent}" />
+                            <Setter TargetName="Vignette" Property="BorderBrush" Value="{DynamicResource Accent}" />
                             <Setter TargetName="Vignette" Property="BorderThickness" Value="2" />
-                            <Setter TargetName="Pastille" Property="Background" Value="{StaticResource Accent}" />
-                            <Setter TargetName="Numero" Property="Foreground" Value="White" />
+                            <Setter TargetName="Pastille" Property="Background" Value="{DynamicResource AccentDegrade}" />
+                            <Setter TargetName="Numero" Property="Foreground" Value="{DynamicResource TexteSurAccent}" />
                         </DataTrigger>
                     </DataTemplate.Triggers>
                 </DataTemplate>
