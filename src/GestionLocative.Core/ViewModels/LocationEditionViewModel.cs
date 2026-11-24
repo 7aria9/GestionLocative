@@ -16,11 +16,14 @@ public sealed partial class LocationEditionViewModel : ObservableObject
 
     private readonly ClientRepository _clients;
     private readonly LocationRepository _locations;
+    private readonly decimal _tauxTva;
 
     public LocationEditionViewModel(BaseDeDonnees baseDeDonnees, DateOnly arrivee)
     {
         _clients = new ClientRepository(baseDeDonnees);
         _locations = new LocationRepository(baseDeDonnees);
+        try { _tauxTva = new ReglagesRepository(baseDeDonnees).ObtenirTauxTva(); }
+        catch (Exception) { _tauxTva = ReglagesRepository.TauxTvaParDefaut; }
 
         _dateDebut = arrivee.ToDateTime(TimeOnly.MinValue);
         _dateFin = arrivee.AddDays(1).ToDateTime(TimeOnly.MinValue);
@@ -62,7 +65,14 @@ public sealed partial class LocationEditionViewModel : ObservableObject
     public bool ClientChoisi => ClientSelectionne is not null;
 
     /// <summary>Tarif TTC en euros, ex. « 450 », « 450,50 » ou « 450,50 € ».</summary>
-    [ObservableProperty] private string _tarifTtc = "";
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ResumeTarif))]
+    private string _tarifTtc = "";
+
+    /// <summary>Ex. « soit 409,09 € HT (TVA 10 %) » ; vide si le tarif n'est pas encore un montant.</summary>
+    public string ResumeTarif => LireMontant(TarifTtc) is { } ttc && ttc >= 0
+        ? $"soit {Location.CalculerHt(ttc, _tauxTva).ToString("#,##0.00 €", Francais)} HT (TVA {_tauxTva.ToString("0.##", Francais)} %)"
+        : "";
     [ObservableProperty] private string _nombreAdultes = "0";
     [ObservableProperty] private string _nombreEnfants = "0";
     [ObservableProperty] private string _nombreBebes = "0";

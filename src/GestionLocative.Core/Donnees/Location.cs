@@ -43,6 +43,17 @@ public sealed class Location
         IdClient = idClient,
     };
 
+    /// <summary>Adultes + enfants + bébés.</summary>
+    public int NombrePersonnes => NombreAdultes + NombreEnfants + NombreBebes;
+
+    /// <summary>Tarif hors taxes calculé à partir du TTC : TTC / (1 + taux / 100), arrondi au centime.</summary>
+    /// <param name="tauxTva">Taux de TVA en pourcentage (10 = 10 %).</param>
+    public decimal TarifHt(decimal tauxTva) => CalculerHt(TarifTtc, tauxTva);
+
+    /// <summary>TTC / (1 + taux / 100), arrondi au centime.</summary>
+    public static decimal CalculerHt(decimal ttc, decimal tauxTva) =>
+        decimal.Round(ttc / (1 + tauxTva / 100m), 2, MidpointRounding.AwayFromZero);
+
     /// <summary>Nombre de nuits (ex. du 1er 16h au 3 10h = 2 nuits).</summary>
     public int NombreNuits => DateOnly.FromDateTime(DateFin).DayNumber - DateOnly.FromDateTime(DateDebut).DayNumber;
 

@@ -122,6 +122,8 @@
                         <TextBlock Style="{StaticResource Libelle}" Text="Tarif TTC (€) *" />
                         <TextBox Style="{StaticResource Champ}" AutomationProperties.Name="Tarif TTC en euros"
                                  Text="{Binding TarifTtc, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Text="{Binding ResumeTarif}" FontSize="12" Margin="0,4,0,0"
+                                   Foreground="{StaticResource TexteSecondaire}" />
                     </StackPanel>
 
                     <StackPanel Grid.Row="1" Grid.Column="0">

@@ -46,6 +46,19 @@
             </TextBlock.Style>
         </TextBlock>
 
+        <TextBlock Text="TVA" FontSize="20" FontWeight="SemiBold"
+                   Foreground="{StaticResource Texte}" Margin="0,22,0,6" />
+        <TextBlock TextWrapping="Wrap" FontSize="13" Foreground="{StaticResource TexteSecondaire}" Margin="0,0,0,10">
+            Taux utilisé pour calculer le prix HT à partir du tarif TTC des locations. Il est enregistré dans la base
+            de données, donc commun à tous les postes.
+        </TextBlock>
+        <StackPanel Orientation="Horizontal">
+            <TextBox Width="90" Height="34" VerticalContentAlignment="Center" Padding="6,0" FontSize="13"
+                     AutomationProperties.Name="Taux de TVA en pourcentage"
+                     Text="{Binding TauxTva, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Text="%" FontSize="14" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="{StaticResource Texte}" />
+        </StackPanel>
+
         <DockPanel Margin="0,22,0,0" LastChildFill="False">
             <Button DockPanel.Dock="Left" Style="{StaticResource Bouton}" Margin="0"
                     Content="Emplacement par défaut" Command="{Binding RemettreParDefautCommand}" />
