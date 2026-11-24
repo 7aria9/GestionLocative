@@ -1,0 +1,132 @@
+<Window x:Class="GestionLocative.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:GestionLocative.Core.ViewModels;assembly=GestionLocative.Core"
+        mc:Ignorable="d"
+        Title="Gestion locative"
+        Width="1200" Height="820" MinWidth="760" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource FondFenetre}"
+        FontFamily="Segoe UI">
+
+    <Window.DataContext>
+        <vm:CalendarViewModel />
+    </Window.DataContext>
+
+    <!-- Raccourcis clavier : Page précédente / Page suivante -->
+    <Window.InputBindings>
+        <KeyBinding Key="PageUp" Command="{Binding MoisPrecedentCommand}" />
+        <KeyBinding Key="PageDown" Command="{Binding MoisSuivantCommand}" />
+    </Window.InputBindings>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- En-tête : mois affiché à gauche, navigation à droite -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,16" LastChildFill="True">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Style="{StaticResource BoutonNavigation}"
+                        Content="&#xE76B;"
+                        ToolTip="Mois précédent (Page préc.)"
+                        AutomationProperties.Name="Mois précédent"
+                        Command="{Binding MoisPrecedentCommand}" />
+                <Button Style="{StaticResource BoutonNavigation}"
+                        Content="&#xE76C;"
+                        ToolTip="Mois suivant (Page suiv.)"
+                        AutomationProperties.Name="Mois suivant"
+                        Command="{Binding MoisSuivantCommand}" />
+            </StackPanel>
+            <TextBlock Text="{Binding Titre}"
+                       FontSize="28" FontWeight="SemiBold"
+                       Foreground="{StaticResource Texte}"
+                       VerticalAlignment="Center" />
+        </DockPanel>
+
+        <!-- Noms des jours, du lundi au dimanche -->
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding JoursSemaine}" Margin="0,0,0,6">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="7" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" Margin="10,0"
+                               FontSize="13" FontWeight="SemiBold"
+                               Foreground="{StaticResource TexteSecondaire}" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Vignettes des jours -->
+        <ItemsControl Grid.Row="2" ItemsSource="{Binding Jours}" Focusable="False">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <UniformGrid Columns="7" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type vm:DayTileViewModel}">
+                    <Border x:Name="Vignette"
+                            Margin="3" Padding="8,6"
+                            CornerRadius="8"
+                            Background="{StaticResource FondVignette}"
+                            BorderBrush="{StaticResource Bordure}"
+                            BorderThickness="1">
+                        <DockPanel>
+                            <!-- Numéro du jour -->
+                            <Border x:Name="Pastille" DockPanel.Dock="Top"
+                                    HorizontalAlignment="Left"
+                                    MinWidth="28" Height="28" CornerRadius="14"
+                                    Background="Transparent">
+                                <TextBlock x:Name="Numero"
+                                           Text="{Binding Numero}"
+                                           Margin="6,0"
+                                           FontSize="15" FontWeight="SemiBold"
+                                           Foreground="{StaticResource Texte}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+
+                            <!-- Emplacement des réservations / locations (à venir) -->
+                            <ItemsControl ItemsSource="{Binding Entrees}" Margin="0,4,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="0,0,0,2" Padding="6,1" CornerRadius="4"
+                                                Background="{StaticResource AccentClair}">
+                                            <TextBlock Text="{Binding Libelle}" FontSize="11"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       Foreground="{StaticResource Accent}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </DockPanel>
+                    </Border>
+                    <DataTemplate.Triggers>
+                        <DataTrigger Binding="{Binding EstWeekEnd}" Value="True">
+                            <Setter TargetName="Vignette" Property="Background" Value="{StaticResource FondVignetteWeekEnd}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding EstDansLeMois}" Value="False">
+                            <Setter TargetName="Vignette" Property="Background" Value="{StaticResource FondVignetteHorsMois}" />
+                            <Setter TargetName="Vignette" Property="BorderBrush" Value="Transparent" />
+                            <Setter TargetName="Numero" Property="Foreground" Value="{StaticResource TexteHorsMois}" />
+                            <Setter TargetName="Numero" Property="FontWeight" Value="Normal" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding EstAujourdhui}" Value="True">
+                            <Setter TargetName="Vignette" Property="BorderBrush" Value="{StaticResource Accent}" />
+                            <Setter TargetName="Vignette" Property="BorderThickness" Value="2" />
+                            <Setter TargetName="Pastille" Property="Background" Value="{StaticResource Accent}" />
+                            <Setter TargetName="Numero" Property="Foreground" Value="White" />
+                        </DataTrigger>
+                    </DataTemplate.Triggers>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </Grid>
+</Window>

@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GestionLocative.App/GestionLocative.App.csproj" />
+    <Project Path="src/GestionLocative.Core/GestionLocative.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/GestionLocative.Tests/GestionLocative.Tests.csproj" />
+  </Folder>
+</Solution>
