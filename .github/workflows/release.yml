@@ -1,0 +1,64 @@
+name: Release Windows
+
+# À chaque merge sur main : tests, puis publication d'un exécutable Windows
+# autonome (un seul .exe, sans installer .NET) dans une GitHub Release.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  # Version = MAJEUR.MINEUR.<numéro d'exécution du workflow>, incrémentée à chaque merge.
+  # Pour passer en 1.1.x ou 2.0.x, modifier simplement cette ligne.
+  VERSION_PREFIX: "1.0"
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Calculer la version
+        id: version
+        shell: bash
+        run: echo "version=${VERSION_PREFIX}.${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Tests
+        run: dotnet test GestionLocative.slnx -c Release
+
+      - name: Publier l'exécutable
+        run: >
+          dotnet publish src/GestionLocative.App/GestionLocative.App.csproj
+          -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=none
+          -p:Version=${{ steps.version.outputs.version }}
+          -o publish
+
+      - name: Zipper
+        shell: pwsh
+        run: Compress-Archive -Path publish/GestionLocative.exe -DestinationPath "GestionLocative-${{ steps.version.outputs.version }}-win-x64.zip"
+
+      - name: Créer la release GitHub
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          v="${{ steps.version.outputs.version }}"
+          gh release create "v$v" "GestionLocative-$v-win-x64.zip" \
+            --target "${{ github.sha }}" \
+            --title "GestionLocative $v" \
+            --generate-notes

@@ -40,3 +40,10 @@ Ou ouvrir `GestionLocative.slnx` dans Visual Studio 2022 (17.14+) ou Visual Stud
 ```
 dotnet test
 ```
+
+## Téléchargement
+
+À chaque merge sur `main`, le workflow **Release Windows** lance les tests puis publie une
+[release](../../releases) contenant `GestionLocative-<version>-win-x64.zip`. Il suffit de
+dézipper et de lancer `GestionLocative.exe` : aucune installation de .NET n'est nécessaire.
+Le numéro de version (`1.0.N`) augmente automatiquement à chaque release.
