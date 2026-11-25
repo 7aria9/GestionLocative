@@ -55,10 +55,11 @@ public sealed class LocationsCalendarSourceTests : IDisposable
 
         var arrivee = entrees[0];
         Assert.Equal("Arrivée DUPONT Jean", arrivee.Libelle);
-        Assert.Equal("4 personnes", arrivee.Details[0]);
+        Assert.Equal("4 personnes (2/1/1)", arrivee.Details[0]);
         Assert.Equal("jean.dupont@example.com", arrivee.Details[1]);
         Assert.Equal("HT 409,09 € · TTC 450,00 €", arrivee.Details[2].Replace(' ', ' ').Replace(' ', ' '));
         Assert.Contains("2 adulte(s), 1 enfant(s), 1 bébé(s)", arrivee.Infobulle);
+        Assert.DoesNotContain("(2/1/1)", arrivee.Infobulle);
         // Les jours suivants sont compacts (détail au survol), le lundi 7 répète le détail en début de ligne.
         Assert.Empty(entrees.Single(e => e.Date == new DateOnly(2026, 12, 6)).Details);
         Assert.NotEmpty(entrees.Single(e => e.Date == new DateOnly(2026, 12, 7)).Details);

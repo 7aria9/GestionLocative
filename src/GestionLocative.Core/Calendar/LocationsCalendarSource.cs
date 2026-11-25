@@ -63,6 +63,9 @@ public sealed class LocationsCalendarSource(Func<BaseDeDonnees> baseCourante) : 
             1 => "1 personne",
             var n => $"{n} personnes",
         };
+        // Détail adultes / enfants / bébés, ex. « 7 personnes (2/4/1) ».
+        if (location.NombrePersonnes > 0)
+            personnes += $" ({location.NombreAdultes}/{location.NombreEnfants}/{location.NombreBebes})";
         var lignes = new List<string> { personnes };
         if (client is not null) lignes.Add(client.Email);
         lignes.Add($"HT {Euros(location.TarifHt(tauxTva))} · TTC {Euros(location.TarifTtc)}");
@@ -77,8 +80,10 @@ public sealed class LocationsCalendarSource(Func<BaseDeDonnees> baseCourante) : 
             $"Du {location.DateDebut.ToString("dddd d MMMM HH:mm", Francais)} au {location.DateFin.ToString("dddd d MMMM HH:mm", Francais)}",
         };
         lignes.AddRange(details);
+        // Dans l'infobulle, le détail est écrit en toutes lettres à la place de « (A/E/B) ».
         if (location.NombrePersonnes > 0)
-            lignes[2] += $" ({location.NombreAdultes} adulte(s), {location.NombreEnfants} enfant(s), {location.NombreBebes} bébé(s))";
+            lignes[2] = (location.NombrePersonnes == 1 ? "1 personne" : $"{location.NombrePersonnes} personnes") +
+                        $" ({location.NombreAdultes} adulte(s), {location.NombreEnfants} enfant(s), {location.NombreBebes} bébé(s))";
         if (location.Airbnb || !string.IsNullOrWhiteSpace(location.NumeroReservation))
             lignes.Add((location.Airbnb ? "Airbnb" : "Réservation") +
                        (string.IsNullOrWhiteSpace(location.NumeroReservation) ? "" : $" n° {location.NumeroReservation}"));
